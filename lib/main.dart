@@ -17,30 +17,7 @@ class App extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 67, 43, 85),
         ),
-        textTheme: GoogleFonts.latoTextTheme().copyWith(
-          bodySmall:const  TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          bodyMedium:const  TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          bodyLarge:const  TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          labelMedium: const  TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          labelSmall: const  TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          displaySmall: const  TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          displayMedium: const  TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          
-        ),
+        textTheme: GoogleFonts.latoTextTheme(),
       ),
       home: const AuthScreen(),
     );

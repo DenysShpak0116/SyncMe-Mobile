@@ -10,7 +10,19 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  final _form = GlobalKey<FormState>();
+
   var _isLogin = true;
+  var _enteredEmail = '';
+  var _enterdPassowrd = '';
+
+  void _submit() {
+    if (_form.currentState!.validate()) {
+      _form.currentState!.save();
+      print(_enteredEmail);
+      print(_enterdPassowrd);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +62,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Form(
+                      key: _form,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -63,6 +76,17 @@ class _AuthScreenState extends State<AuthScreen> {
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
+                            validator: (value) {
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  !value.contains('@')) {
+                                return 'Please enter an valid email address.';
+                              }
+                              return null;
+                            },
+                            onSaved: (newValue) {
+                              _enteredEmail = newValue!;
+                            },
                           ),
                           TextFormField(
                             decoration: const InputDecoration(
@@ -72,18 +96,28 @@ class _AuthScreenState extends State<AuthScreen> {
                               labelText: 'Password',
                             ),
                             obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.trim().length < 8) {
+                                return 'Password must be at least 8 characters long.';
+                              }
+                              return null;
+                            },
+                            onSaved: (newValue) {
+                              _enterdPassowrd = newValue!;
+                            },
                           ),
                           const SizedBox(
                             height: 12,
                           ),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: _submit,
                             style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 107, 68, 135)),
-                            child: const Text(
-                              'Log in',
-                              style: TextStyle(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 107, 68, 135),
+                            ),
+                            child: Text(
+                              _isLogin ? 'Log in' : 'Sign up',
+                              style: const TextStyle(
                                 color: Color.fromARGB(255, 211, 179, 233),
                               ),
                             ),
@@ -94,7 +128,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                 _isLogin = !_isLogin;
                               });
                             },
-                            child: Text(_isLogin ? 'Register now' : 'Log in'),
+                            child: Text(
+                              _isLogin ? 'Register now' : 'Log in',
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 211, 179, 233),
+                              ),
+                            ),
                           )
                         ],
                       ),
