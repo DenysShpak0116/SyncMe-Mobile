@@ -1,3 +1,6 @@
+import 'package:syncme/models/author.dart';
+import 'package:syncme/models/emotional_analysis.dart';
+
 class Post {
   Post({
     required this.postId,
@@ -5,8 +8,8 @@ class Post {
     required this.videoContent,
     required this.date,
     required this.countOfLikes,
-    required this.authorId,
-    required this.emotionalAnalysId,
+    required this.author,
+    required this.emotionalAnalysis,
   });
 
   final String postId;
@@ -14,6 +17,6 @@ class Post {
   final String videoContent;
   final DateTime date;
   final String countOfLikes;
-  final String authorId;
-  final String emotionalAnalysId;
+  final Author author;
+  final EmotionalAnalysis emotionalAnalysis;
 }
