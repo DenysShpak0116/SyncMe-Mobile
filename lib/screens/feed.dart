@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 
-class Feed extends StatefulWidget {
-  const Feed({super.key});
+class FeedScreen extends StatefulWidget {
+  const FeedScreen({super.key});
 
   @override
-  State<Feed> createState() {
-    return _FeedState();
+  State<FeedScreen> createState() {
+    return _FeedScreenState();
   }
 }
 
-class _FeedState extends State<Feed> {
+class _FeedScreenState extends State<FeedScreen> {
   int i = 0;
 
   void _connectDB() async {
