@@ -3,7 +3,6 @@ import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
 import 'package:syncme/widgets/post_item.dart';
 
-
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
 
@@ -16,6 +15,13 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   List<Post> _posts = [];
   bool _isLoading = true;
+  final databaseService = DatabaseService();
+
+  @override
+  void dispose() {
+    databaseService.close();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -24,7 +30,6 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   Future<void> _loadPosts() async {
-    final databaseService = DatabaseService();
     List<Post> loadedPosts = await databaseService.loadPosts();
     setState(() {
       _posts = loadedPosts;

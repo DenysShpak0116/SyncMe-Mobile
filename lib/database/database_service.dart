@@ -29,23 +29,14 @@ class DatabaseService {
       await connect();
     }
     List<Post> loadedPosts = [];
-
-    final conn = await MySqlConnection.connect(
-      ConnectionSettings(
-          host: 'syncme.mysql.database.azure.com',
-          port: 3306,
-          user: 'SyncMeAdmin',
-          db: 'syncme',
-          password: 'Smad_mysql123'),
-    );
-    var postsResults = await conn.query('select * from syncme.post');
+    var postsResults = await _connection!.query('select * from syncme.post');
 
     for (var postRow in postsResults) {
-      var authorResult = await conn.query(
+      var authorResult = await _connection!.query(
           'select * from syncme.author where syncme.author.AuthorId = ${postRow[6]}');
       ResultRow authorRow = authorResult.toList()[0];
 
-      var groupResult = await conn.query(
+      var groupResult = await _connection!.query(
           'select * from syncme.group where syncme.group.GroupId = ${authorRow[5]}');
       ResultRow groupRow = groupResult.toList()[0];
 
@@ -80,6 +71,22 @@ class DatabaseService {
       loadedPosts.add(post);
     }
     return loadedPosts;
+  }
+
+  void likePost(Post post) async {
+    if (_connection == null) {
+      await connect();
+    }
+    await _connection!.query(
+        'update syncme.post set syncme.post.CountOfLikes = syncme.post.CountOfLikes + 1 where syncme.post.PostId = ${post.postId}');
+  }
+
+  void removeLikeFromPost(Post post) async {
+    if (_connection == null) {
+      await connect();
+    }
+    await _connection!.query(
+        'update syncme.post set syncme.post.CountOfLikes = syncme.post.CountOfLikes - 1 where syncme.post.PostId = ${post.postId}');
   }
 
   Future<Results> executeQuery(String query, [List<Object?>? values]) async {

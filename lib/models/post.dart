@@ -18,7 +18,7 @@ class Post {
   final String? imgContent;
   final String? videoContent;
   final DateTime date;
-  final int countOfLikes;
+  int countOfLikes;
   final Author author;
   final EmotionalAnalysis? emotionalAnalysis;
 }

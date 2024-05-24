@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:intl/intl.dart';
@@ -17,9 +18,31 @@ class PostItem extends StatefulWidget {
 
 class _PostItemState extends State<PostItem> {
   bool _isLiked = false;
-  void _like(){
-    if(!_isLiked){
-      
+  final databaseService = DatabaseService();
+
+  @override
+  void dispose() {
+    databaseService.close();
+    super.dispose();
+  }
+
+  void _like() {
+    if (!_isLiked) {
+      setState(
+        () {
+          _isLiked = !_isLiked;
+          widget.post.countOfLikes++;
+        },
+      );
+      databaseService.likePost(widget.post);
+    } else {
+      setState(
+        () {
+          _isLiked = !_isLiked;
+          widget.post.countOfLikes--;
+        },
+      );
+      databaseService.removeLikeFromPost(widget.post);
     }
   }
 
@@ -51,7 +74,7 @@ class _PostItemState extends State<PostItem> {
                     ),
                     subtitle: Text(
                       'from • ${widget.post.author.group.name}',
-                      style: TextStyle(color: Colors.white70),
+                      style: const TextStyle(color: Color(0xFFB28ECC)),
                     ),
                   ),
                 ),
@@ -59,9 +82,9 @@ class _PostItemState extends State<PostItem> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(
+                      const Text(
                         '75%',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xFFB28ECC),
                         ),
                       ),
@@ -83,14 +106,14 @@ class _PostItemState extends State<PostItem> {
                       const SizedBox(
                         width: 6,
                       ),
-                      Icon(
+                      const Icon(
                         IconData(
                           0xf0586,
                           fontFamily: 'MaterialIcons',
                         ),
                         color: Color(0xff744E8E),
                       ),
-                      Icon(
+                      const Icon(
                         Icons.more_vert,
                         color: Color(0xff744E8E),
                       ),
@@ -106,7 +129,9 @@ class _PostItemState extends State<PostItem> {
                 maxLines: 3,
                 overflow: TextOverflow.visible,
                 style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Color(0xFFD3B3E9)),
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFFD3B3E9),
+                ),
               ),
             ),
             const SizedBox(
@@ -132,17 +157,19 @@ class _PostItemState extends State<PostItem> {
                 height: 5,
               ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 children: [
                   IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.add),
-                      color: Color(0xFFD3B3E9)),
+                      onPressed: _like,
+                      icon: const Icon(Icons.add),
+                      color: _isLiked
+                          ? const Color.fromARGB(255, 194, 33, 119)
+                          : const Color(0xFFD3B3E9)),
                   Text(
                     widget.post.countOfLikes.toString(),
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: Color(0xFFD3B3E9),
                     ),
                   ),
@@ -160,12 +187,12 @@ class _PostItemState extends State<PostItem> {
                   IconButton(
                     onPressed: () {},
                     icon: const Icon(Icons.repeat),
-                    color: Color(0xFFD3B3E9),
+                    color: const Color(0xFFD3B3E9),
                   )
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 4,
             )
           ],
