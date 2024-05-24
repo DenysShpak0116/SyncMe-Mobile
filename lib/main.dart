@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syncme/screens/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:syncme/screens/feed.dart';
 
