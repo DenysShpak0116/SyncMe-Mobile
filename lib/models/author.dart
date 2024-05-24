@@ -13,7 +13,7 @@ class Author {
     required this.username,
   });
 
-  final String authorId;
+  final int authorId;
   final String name;
   final String socialMedia;
   final String authorImage;

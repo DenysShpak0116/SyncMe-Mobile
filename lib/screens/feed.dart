@@ -1,8 +1,14 @@
+import 'dart:ffi';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:syncme/models/author.dart';
 import 'package:syncme/models/group.dart';
 import 'package:syncme/models/post.dart';
+import 'dart:convert';
+
+import 'package:syncme/widgets/post_item.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -63,10 +69,9 @@ class _FeedScreenState extends State<FeedScreen> {
         emotionalAnalysis: authorRow[6],
         username: authorRow[7],
       );
-
       Post post = Post(
         postId: postRow[0],
-        textContent: postRow[1],
+        textContent: postRow[1].toString(),
         imgContent: postRow[2],
         videoContent: postRow[3],
         date: postRow[4],
@@ -93,16 +98,15 @@ class _FeedScreenState extends State<FeedScreen> {
         child: CircularProgressIndicator(),
       );
     }
+    if (_posts.isNotEmpty) {
+      content = ListView.builder(
+        itemCount: _posts.length,
+        itemBuilder: (ctx, index) => PostItem(
+          post: _posts[index],
+        ),
+      );
+    }
 
-    // content = ListView.builder(
-    //     itemCount: meals.length,
-    //     itemBuilder: (ctx, index) => MealItem(
-    //       meal: meals[index],
-    //       onSelectMeal: () {
-    //         _selectMeal(context, meals[index]);
-    //       },
-    //     ),
-    //   );
     return Scaffold(
       body: content,
     );

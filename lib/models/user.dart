@@ -14,7 +14,7 @@ class User {
     required this.lastName,
     required this.sex,
   });
-  final String userId;
+  final int userId;
   final String username;
   final String password;
   final String email;

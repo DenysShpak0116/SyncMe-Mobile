@@ -5,7 +5,7 @@ class EmotionalAnalysis {
     required this.emotionalIcon,
   });
 
-  final String emotionalAnalysisId;
+  final int emotionalAnalysisId;
   final int emotionalState;
   final String emotionalIcon;
 }

@@ -7,7 +7,7 @@ class UserGroup {
     required this.group,
     required this.user,
   });
-  final String userGroupId;
+  final int userGroupId;
   final Group group;
   final User user;
 }

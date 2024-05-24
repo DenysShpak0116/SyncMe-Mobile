@@ -13,12 +13,12 @@ class Post {
     required this.emotionalAnalysis,
   });
 
-  final String postId;
+  final int postId;
   final String textContent;
   final String? imgContent;
   final String? videoContent;
   final DateTime date;
-  final String countOfLikes;
+  final int countOfLikes;
   final Author author;
   final EmotionalAnalysis? emotionalAnalysis;
 }

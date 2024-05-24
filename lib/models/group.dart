@@ -9,7 +9,7 @@ class Group {
     required this.emotionalAnalysis,
   });
 
-  final String groupId;
+  final int groupId;
   final String name;
   final String groupImage;
   final String groundBackgroundImage;
