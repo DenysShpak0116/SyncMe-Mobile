@@ -16,6 +16,12 @@ class PostItem extends StatefulWidget {
 }
 
 class _PostItemState extends State<PostItem> {
+  bool _isLiked = false;
+  void _like(){
+    if(!_isLiked){
+      
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
