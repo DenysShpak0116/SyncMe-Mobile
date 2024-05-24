@@ -20,7 +20,7 @@ class App extends StatelessWidget {
         ),
         textTheme: GoogleFonts.latoTextTheme(),
       ),
-      home: const AuthScreen(),
+      home: const FeedScreen(),
     );
   }
 }

@@ -13,5 +13,5 @@ class Group {
   final String name;
   final String groupImage;
   final String groundBackgroundImage;
-  final EmotionalAnalysis emotionalAnalysis;
+  final EmotionalAnalysis? emotionalAnalysis;
 }
