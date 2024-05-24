@@ -58,7 +58,10 @@ class _PostItemState extends State<PostItem> {
                           color: Color(0xFFB28ECC),
                         ),
                       ),
-                      const Icon(Icons.emoji_emotions,color: Color(0xFFB28ECC),),
+                      const Icon(
+                        Icons.emoji_emotions,
+                        color: Color(0xFFB28ECC),
+                      ),
                       const SizedBox(
                         width: 6,
                       ),
@@ -90,7 +93,7 @@ class _PostItemState extends State<PostItem> {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
                 widget.post.textContent,
                 maxLines: 3,
@@ -103,11 +106,18 @@ class _PostItemState extends State<PostItem> {
               height: 6,
             ),
             if (widget.post.imgContent != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: FadeInImage(
-                  placeholder: MemoryImage(kTransparentImage),
-                  image: NetworkImage(widget.post.imgContent!),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: FadeInImage(
+                    placeholder: MemoryImage(kTransparentImage),
+                    image: NetworkImage(widget.post.imgContent!),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             if (widget.post.imgContent != null)
@@ -115,10 +125,37 @@ class _PostItemState extends State<PostItem> {
                 height: 5,
               ),
             Padding(
-              padding: EdgeInsets.all(10),
-              child: Text(
-                'Write a comment...',
-                style: TextStyle(color: Colors.white70),
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.add),
+                      color: Color(0xff744E8E)),
+                  Text(
+                    widget.post.countOfLikes.toString(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFD3B3E9),
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      'Write a comment...',
+                      style: TextStyle(
+                        color: Color(0xFFD3B3E9),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.repeat),
+                    color: Color(0xff744E8E),
+                  )
+                ],
               ),
             ),
           ],
