@@ -16,6 +16,7 @@ class PostItem extends StatefulWidget {
 }
 
 class _PostItemState extends State<PostItem> {
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -131,7 +132,7 @@ class _PostItemState extends State<PostItem> {
                   IconButton(
                       onPressed: () {},
                       icon: Icon(Icons.add),
-                      color: Color(0xff744E8E)),
+                      color: Color(0xFFD3B3E9)),
                   Text(
                     widget.post.countOfLikes.toString(),
                     style: const TextStyle(
@@ -143,7 +144,7 @@ class _PostItemState extends State<PostItem> {
                   TextButton(
                     onPressed: () {},
                     child: const Text(
-                      'Write a comment...',
+                      'View all comments',
                       style: TextStyle(
                         color: Color(0xFFD3B3E9),
                       ),
@@ -153,11 +154,14 @@ class _PostItemState extends State<PostItem> {
                   IconButton(
                     onPressed: () {},
                     icon: const Icon(Icons.repeat),
-                    color: Color(0xff744E8E),
+                    color: Color(0xFFD3B3E9),
                   )
                 ],
               ),
             ),
+            SizedBox(
+              height: 4,
+            )
           ],
         ),
       ),

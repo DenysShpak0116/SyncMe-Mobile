@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:syncme/screens/auth.dart';
 import 'package:syncme/screens/feed.dart';
 
 void main() {
@@ -15,11 +16,12 @@ class App extends StatelessWidget {
       title: 'SyncMe',
       theme: ThemeData().copyWith(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 67, 43, 85),
+          seedColor: const Color(0xFF432B55),
         ),
         textTheme: GoogleFonts.latoTextTheme(),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 67, 43, 85),
       ),
-      home: const FeedScreen(),
+      home: const AuthScreen(),
     );
   }
 }

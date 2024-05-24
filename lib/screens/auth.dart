@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:syncme/screens/feed.dart';
+import 'package:syncme/screens/tabs.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -21,6 +23,12 @@ class _AuthScreenState extends State<AuthScreen> {
   void _submit() {
     if (_form.currentState!.validate()) {
       _form.currentState!.save();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (ctx) => const TabsScreen(),
+        ),
+      );
       print(_enteredEmail);
       print(_enterdPassowrd);
     }
@@ -262,7 +270,6 @@ class _AuthScreenState extends State<AuthScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 67, 43, 85),
       body: Center(
         child: SingleChildScrollView(
           child: Column(

@@ -103,8 +103,6 @@ class _FeedScreenState extends State<FeedScreen> {
       );
     }
 
-    return Scaffold(
-      body: content,
-    );
+    return content;
   }
 }
