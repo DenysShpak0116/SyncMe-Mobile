@@ -199,7 +199,46 @@ class _PostScreenState extends State<PostScreen> {
             const SizedBox(
               height: 4,
             ),
-            const TextField(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF794D98),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: TextField(
+                          cursorColor: Color.fromARGB(255, 94, 59, 118),
+                          style: TextStyle(
+                            color: Color(0xFFD3B3E9),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Write a comment...',
+                            hintStyle: TextStyle(
+                              color: Color(0xFFD3B3E9),
+                            ),
+                            border: InputBorder.none,
+                          ),
+                          maxLines: null,
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.send_rounded,
+                      color: Color(0xFF794D98),
+                    ),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
