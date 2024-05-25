@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
+import 'package:syncme/screens/post.dart';
 import 'package:syncme/widgets/post_item.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -37,6 +38,17 @@ class _FeedScreenState extends State<FeedScreen> {
     });
   }
 
+  void _selectPost(BuildContext context, Post post) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => PostScreen(
+          post: post,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget content = const Center(
@@ -52,6 +64,9 @@ class _FeedScreenState extends State<FeedScreen> {
         itemCount: _posts.length,
         itemBuilder: (ctx, index) => PostItem(
           post: _posts[index],
+          onSelectPost: () {
+            _selectPost(context, _posts[index]);
+          },
         ),
       );
     }

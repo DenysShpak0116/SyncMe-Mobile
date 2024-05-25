@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
-import 'package:syncme/screens/post.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:intl/intl.dart';
 
 final DateFormat formatter = DateFormat('d/M/y');
 
 class PostItem extends StatefulWidget {
-  const PostItem({required this.post, super.key});
+  const PostItem({required this.onSelectPost,required this.post, super.key});
   final Post post;
+  final void Function() onSelectPost;
 
   @override
   State<PostItem> createState() {
@@ -50,17 +49,6 @@ class _PostItemState extends State<PostItem> {
 
   @override
   Widget build(BuildContext context) {
-    void _selectPost(BuildContext context, Post post) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (ctx) => PostScreen(
-            post: post,
-          ),
-        ),
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -141,9 +129,7 @@ class _PostItemState extends State<PostItem> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: InkWell(
-                onTap: () {
-                  _selectPost(context, widget.post);
-                },
+                onTap: widget.onSelectPost,
                 child: Expanded(
                   child: Column(
                     children: [
