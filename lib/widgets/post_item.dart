@@ -7,9 +7,10 @@ import 'package:intl/intl.dart';
 final DateFormat formatter = DateFormat('d/M/y');
 
 class PostItem extends StatefulWidget {
-  const PostItem({required this.onSelectPost,required this.post, super.key});
+  const PostItem({required this.onSelectPostWithScrolling, required this.onSelectPost,required this.post, super.key,});
   final Post post;
   final void Function() onSelectPost;
+  final void Function() onSelectPostWithScrolling;
 
   @override
   State<PostItem> createState() {
@@ -187,7 +188,7 @@ class _PostItemState extends State<PostItem> {
                   ),
                   const Spacer(),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: widget.onSelectPostWithScrolling,
                     child: const Text(
                       'View all comments',
                       style: TextStyle(

@@ -44,6 +44,19 @@ class _FeedScreenState extends State<FeedScreen> {
       MaterialPageRoute(
         builder: (ctx) => PostScreen(
           post: post,
+          scrollingToComments: false,
+        ),
+      ),
+    );
+  }
+
+  void _selectPostWithScrolling(BuildContext context, Post post) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => PostScreen(
+          post: post,
+          scrollingToComments: true,
         ),
       ),
     );
@@ -66,6 +79,9 @@ class _FeedScreenState extends State<FeedScreen> {
           post: _posts[index],
           onSelectPost: () {
             _selectPost(context, _posts[index]);
+          },
+          onSelectPostWithScrolling: () {
+            _selectPostWithScrolling(context, _posts[index]);
           },
         ),
       );

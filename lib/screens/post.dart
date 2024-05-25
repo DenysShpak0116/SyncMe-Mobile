@@ -6,8 +6,10 @@ import 'package:syncme/widgets/post_item.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class PostScreen extends StatefulWidget {
-  const PostScreen({required this.post, super.key});
+  const PostScreen(
+      {required this.scrollingToComments, required this.post, super.key});
   final Post post;
+  final bool scrollingToComments;
 
   @override
   State<PostScreen> createState() {
@@ -18,6 +20,30 @@ class PostScreen extends StatefulWidget {
 class _PostScreenState extends State<PostScreen> {
   bool _isLiked = false;
   final databaseService = DatabaseService();
+  
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _targetKey = GlobalKey();
+
+  @override
+  void initState() {
+    if (widget.scrollingToComments) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          final RenderBox renderBox =
+              _targetKey.currentContext!.findRenderObject() as RenderBox;
+          final position = renderBox.localToGlobal(Offset.zero).dy;
+
+          _scrollController.animateTo(
+            position - kToolbarHeight * 2,
+            duration: const Duration(seconds: 1),
+            curve: Curves.easeInOut,
+          );
+        },
+      );
+    }
+
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -62,6 +88,7 @@ class _PostScreenState extends State<PostScreen> {
       ),
       backgroundColor: const Color.fromARGB(255, 94, 59, 118),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -206,6 +233,7 @@ class _PostScreenState extends State<PostScreen> {
                 children: [
                   Expanded(
                     child: Container(
+                      key: _targetKey,
                       decoration: BoxDecoration(
                         color: const Color(0xFF794D98),
                         borderRadius: BorderRadius.circular(15.0),
@@ -237,6 +265,48 @@ class _PostScreenState extends State<PostScreen> {
                     onPressed: () {},
                   ),
                 ],
+              ),
+            ),
+            Text(
+              widget.post.textContent,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFD3B3E9),
+              ),
+            ),
+            Text(
+              widget.post.textContent,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFD3B3E9),
+              ),
+            ),
+            Text(
+              widget.post.textContent,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFD3B3E9),
+              ),
+            ),
+            Text(
+              widget.post.textContent,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFD3B3E9),
+              ),
+            ),
+            Text(
+              widget.post.textContent,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFD3B3E9),
+              ),
+            ),
+            Text(
+              widget.post.textContent,
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFD3B3E9),
               ),
             ),
           ],
