@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
+import 'package:syncme/screens/post.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:intl/intl.dart';
 
-final DateFormat formatter = DateFormat.yMMMd();
+final DateFormat formatter = DateFormat('d/M/y');
 
 class PostItem extends StatefulWidget {
   const PostItem({required this.post, super.key});
@@ -48,6 +50,17 @@ class _PostItemState extends State<PostItem> {
 
   @override
   Widget build(BuildContext context) {
+    void _selectPost(BuildContext context, Post post) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (ctx) => PostScreen(
+            post: post,
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -80,7 +93,6 @@ class _PostItemState extends State<PostItem> {
                 ),
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       const Text(
                         '75%',
@@ -89,11 +101,12 @@ class _PostItemState extends State<PostItem> {
                         ),
                       ),
                       const Icon(
+                        size: 20,
                         Icons.emoji_emotions,
                         color: Color(0xFFB28ECC),
                       ),
                       const SizedBox(
-                        width: 6,
+                        width: 4,
                       ),
                       Text(
                         formatter.format(
@@ -104,7 +117,7 @@ class _PostItemState extends State<PostItem> {
                         ),
                       ),
                       const SizedBox(
-                        width: 6,
+                        width: 4,
                       ),
                       const Icon(
                         IconData(
@@ -113,9 +126,12 @@ class _PostItemState extends State<PostItem> {
                         ),
                         color: Color(0xff744E8E),
                       ),
-                      const Icon(
-                        Icons.more_vert,
-                        color: Color(0xff744E8E),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.more_vert,
+                          color: Color(0xff744E8E),
+                        ),
+                        onPressed: () {},
                       ),
                     ],
                   ),
@@ -124,38 +140,48 @@ class _PostItemState extends State<PostItem> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(
-                widget.post.textContent,
-                maxLines: 3,
-                overflow: TextOverflow.visible,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFFD3B3E9),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 6,
-            ),
-            if (widget.post.imgContent != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20.0),
-                  child: FadeInImage(
-                    placeholder: MemoryImage(kTransparentImage),
-                    image: NetworkImage(widget.post.imgContent!),
-                    fit: BoxFit.cover,
+              child: InkWell(
+                onTap: () {
+                  _selectPost(context, widget.post);
+                },
+                child: Expanded(
+                  child: Column(
+                    children: [
+                      Text(
+                        widget.post.textContent,
+                        maxLines: 3,
+                        overflow: TextOverflow.visible,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFD3B3E9),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 6,
+                      ),
+                      if (widget.post.imgContent != null)
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20.0),
+                            child: FadeInImage(
+                              placeholder: MemoryImage(kTransparentImage),
+                              image: NetworkImage(widget.post.imgContent!),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      if (widget.post.imgContent != null)
+                        const SizedBox(
+                          height: 5,
+                        ),
+                    ],
                   ),
                 ),
               ),
-            if (widget.post.imgContent != null)
-              const SizedBox(
-                height: 5,
-              ),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(

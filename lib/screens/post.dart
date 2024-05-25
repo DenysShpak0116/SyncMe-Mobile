@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:syncme/screens/feed.dart';
+import 'package:syncme/models/post.dart';
 
-class TabsScreen extends StatefulWidget {
-  const TabsScreen({super.key});
+class PostScreen extends StatefulWidget {
+  const PostScreen({required this.post,super.key});
+  final Post post;
 
   @override
-  State<TabsScreen> createState() {
-    return _TabsScreenState();
+  State<PostScreen> createState() {
+    return _PostScreenState();
   }
 }
 
-class _TabsScreenState extends State<TabsScreen> {
+class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +24,7 @@ class _TabsScreenState extends State<TabsScreen> {
           ),
         ),
       ),
-      body: const FeedScreen(),
+      backgroundColor: const Color.fromARGB(255, 94, 59, 118),
     );
   }
 }

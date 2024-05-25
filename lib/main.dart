@@ -19,6 +19,7 @@ class App extends StatelessWidget {
         ),
         textTheme: GoogleFonts.latoTextTheme(),
         scaffoldBackgroundColor: const Color.fromARGB(255, 67, 43, 85),
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF281A33),),
       ),
       home: const AuthScreen(),
     );
