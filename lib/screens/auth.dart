@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:syncme/screens/feed.dart';
 import 'package:syncme/screens/tabs.dart';
 
 class AuthScreen extends StatefulWidget {

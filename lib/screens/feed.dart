@@ -72,6 +72,7 @@ class _FeedScreenState extends State<FeedScreen> {
         child: CircularProgressIndicator(),
       );
     }
+    
     if (_posts.isNotEmpty) {
       content = ListView.builder(
         itemCount: _posts.length,

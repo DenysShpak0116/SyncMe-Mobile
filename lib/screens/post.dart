@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:syncme/database/database_service.dart';
+import 'package:syncme/models/comment.dart';
 import 'package:syncme/models/post.dart';
+import 'package:syncme/widgets/comment_item.dart';
 import 'package:syncme/widgets/post_item.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -18,11 +20,14 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
-  bool _isLiked = false;
   final databaseService = DatabaseService();
-  
+  bool _isLiked = false;
+
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _targetKey = GlobalKey();
+
+  List<Comment> _comments = [];
+  bool _isCommentsLoading = true;
 
   @override
   void initState() {
@@ -41,6 +46,8 @@ class _PostScreenState extends State<PostScreen> {
         },
       );
     }
+
+    _loadComments();
 
     super.initState();
   }
@@ -71,8 +78,36 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  Future<void> _loadComments() async {
+    List<Comment> loadedComments =
+        await databaseService.loadComments(widget.post);
+    setState(() {
+      _comments = loadedComments;
+      _isCommentsLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget commentsContent = const Center(
+      child: Text('No comments yet.'),
+    );
+    if (_isCommentsLoading) {
+      commentsContent = const  Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+          ],
+        ),
+      );
+    }
+    if (_comments.isNotEmpty) {
+      commentsContent = CommentItem(
+          comment: _comments[0],
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
@@ -267,6 +302,7 @@ class _PostScreenState extends State<PostScreen> {
                 ],
               ),
             ),
+            commentsContent,
             Text(
               widget.post.textContent,
               style: const TextStyle(

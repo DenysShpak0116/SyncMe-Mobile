@@ -13,6 +13,8 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.sex,
+    required this.country,
+    required this.role,
   });
   final int userId;
   final String username;
@@ -21,4 +23,6 @@ class User {
   final String firstName;
   final String lastName;
   final Sex sex;
+  final String country;
+  final String role;
 }
