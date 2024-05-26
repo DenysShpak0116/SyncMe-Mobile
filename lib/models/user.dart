@@ -1,8 +1,14 @@
-enum Sex {
-  male,
-  female,
-  other,
-}
+// enum Sex {
+//   male,
+//   female,
+//   other,
+// }
+
+// const userSex = {
+//   Sex.male: 'Male',
+//   Sex.female: 'Female',
+//   Sex.other: 'Other',
+// };
 
 class User {
   User({
@@ -16,13 +22,13 @@ class User {
     required this.country,
     required this.role,
   });
-  final int userId;
+  int userId;
   final String username;
   final String password;
   final String email;
   final String firstName;
   final String lastName;
-  final Sex sex;
+  final String sex;
   final String country;
   final String role;
 }
