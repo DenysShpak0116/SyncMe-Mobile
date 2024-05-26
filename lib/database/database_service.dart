@@ -98,7 +98,7 @@ class DatabaseService {
     List<Comment> loadedComments = [];
 
     var commentsResults = await _connection!.query(
-        'select * from syncme.comment where syncme.comment.PostId = ${post.postId}');
+        'select * from syncme.comment where syncme.comment.PostId = ${post.postId} order by syncme.comment.Date');
 
     for (var commentRow in commentsResults) {
       var userResult = await _connection!.query(

@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/comment.dart';
 import 'package:syncme/models/post.dart';
 import 'package:syncme/widgets/comment_item.dart';
 import 'package:syncme/widgets/post_item.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class PostScreen extends StatefulWidget {
-  const PostScreen(
-      {required this.scrollingToComments, required this.post, super.key});
+  const PostScreen({
+    required this.postImage,
+    required this.scrollingToComments,
+    required this.post,
+    super.key,
+  });
   final Post post;
   final bool scrollingToComments;
+  final Widget? postImage;
 
   @override
   State<PostScreen> createState() {
@@ -31,24 +34,7 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   void initState() {
-    if (widget.scrollingToComments) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) {
-          final RenderBox renderBox =
-              _targetKey.currentContext!.findRenderObject() as RenderBox;
-          final position = renderBox.localToGlobal(Offset.zero).dy;
-
-          _scrollController.animateTo(
-            position - kToolbarHeight * 2,
-            duration: const Duration(seconds: 1),
-            curve: Curves.easeInOut,
-          );
-        },
-      );
-    }
-
     _loadComments();
-
     super.initState();
   }
 
@@ -85,6 +71,21 @@ class _PostScreenState extends State<PostScreen> {
       _comments = loadedComments;
       _isCommentsLoading = false;
     });
+    if (widget.scrollingToComments) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          final RenderBox renderBox =
+              _targetKey.currentContext!.findRenderObject() as RenderBox;
+          final position = renderBox.localToGlobal(Offset.zero).dy;
+
+          _scrollController.animateTo(
+            position - kToolbarHeight * 2,
+            duration: const Duration(seconds: 1),
+            curve: Curves.easeInOut,
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -92,8 +93,9 @@ class _PostScreenState extends State<PostScreen> {
     Widget commentsContent = const Center(
       child: Text('No comments yet.'),
     );
+
     if (_isCommentsLoading) {
-      commentsContent = const  Padding(
+      commentsContent = const Padding(
         padding: EdgeInsets.symmetric(vertical: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -103,11 +105,15 @@ class _PostScreenState extends State<PostScreen> {
         ),
       );
     }
-    if (_comments.isNotEmpty) {
-      commentsContent = CommentItem(
-          comment: _comments[0],
+
+    if (!_isCommentsLoading && _comments.isNotEmpty) {
+      commentsContent = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children:
+            _comments.map((comment) => CommentItem(comment: comment)).toList(),
       );
     }
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
@@ -216,11 +222,7 @@ class _PostScreenState extends State<PostScreen> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20.0),
-                          child: FadeInImage(
-                            placeholder: MemoryImage(kTransparentImage),
-                            image: NetworkImage(widget.post.imgContent!),
-                            fit: BoxFit.cover,
-                          ),
+                          child: widget.postImage,
                         ),
                       ),
                     if (widget.post.imgContent != null)
@@ -303,48 +305,6 @@ class _PostScreenState extends State<PostScreen> {
               ),
             ),
             commentsContent,
-            Text(
-              widget.post.textContent,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Color(0xFFD3B3E9),
-              ),
-            ),
-            Text(
-              widget.post.textContent,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Color(0xFFD3B3E9),
-              ),
-            ),
-            Text(
-              widget.post.textContent,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Color(0xFFD3B3E9),
-              ),
-            ),
-            Text(
-              widget.post.textContent,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Color(0xFFD3B3E9),
-              ),
-            ),
-            Text(
-              widget.post.textContent,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Color(0xFFD3B3E9),
-              ),
-            ),
-            Text(
-              widget.post.textContent,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Color(0xFFD3B3E9),
-              ),
-            ),
           ],
         ),
       ),

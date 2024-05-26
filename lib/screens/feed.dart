@@ -3,6 +3,7 @@ import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
 import 'package:syncme/screens/post.dart';
 import 'package:syncme/widgets/post_item.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -45,6 +46,11 @@ class _FeedScreenState extends State<FeedScreen> {
         builder: (ctx) => PostScreen(
           post: post,
           scrollingToComments: false,
+          postImage: FadeInImage(
+            placeholder: MemoryImage(kTransparentImage),
+            image: NetworkImage(post.imgContent!),
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );
@@ -57,6 +63,11 @@ class _FeedScreenState extends State<FeedScreen> {
         builder: (ctx) => PostScreen(
           post: post,
           scrollingToComments: true,
+          postImage: FadeInImage(
+            placeholder: MemoryImage(kTransparentImage),
+            image: NetworkImage(post.imgContent!),
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );
@@ -72,12 +83,17 @@ class _FeedScreenState extends State<FeedScreen> {
         child: CircularProgressIndicator(),
       );
     }
-    
+
     if (_posts.isNotEmpty) {
       content = ListView.builder(
         itemCount: _posts.length,
         itemBuilder: (ctx, index) => PostItem(
           post: _posts[index],
+          postImage: FadeInImage(
+            placeholder: MemoryImage(kTransparentImage),
+            image: NetworkImage(_posts[index].imgContent!),
+            fit: BoxFit.cover,
+          ),
           onSelectPost: () {
             _selectPost(context, _posts[index]);
           },

@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:intl/intl.dart';
 
 final DateFormat formatter = DateFormat('d/M/y');
 
 class PostItem extends StatefulWidget {
-  const PostItem({required this.onSelectPostWithScrolling, required this.onSelectPost,required this.post, super.key,});
+  const PostItem({
+    required this.onSelectPostWithScrolling,
+    required this.onSelectPost,
+    required this.post,
+    required this.postImage,
+    super.key,
+  });
   final Post post;
+  final Widget? postImage;
   final void Function() onSelectPost;
   final void Function() onSelectPostWithScrolling;
 
@@ -153,11 +159,7 @@ class _PostItemState extends State<PostItem> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20.0),
-                            child: FadeInImage(
-                              placeholder: MemoryImage(kTransparentImage),
-                              image: NetworkImage(widget.post.imgContent!),
-                              fit: BoxFit.cover,
-                            ),
+                            child: widget.postImage,
                           ),
                         ),
                       if (widget.post.imgContent != null)
