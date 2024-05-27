@@ -19,8 +19,26 @@ class LikedPostsNotifier extends StateNotifier<List<Post>> {
       state = likedPosts;
     }
   }
+
+  void likePost(Post post) {
+    state.add(post);
+    final user = ref.read(userProvider);
+
+    if (user != null) {
+      databaseService.likePost(post, user);
+    }
+  }
+  void removeLikeFromPost(Post post) {
+    state.remove(post);
+    final user = ref.read(userProvider);
+    
+    if (user != null) {
+      databaseService.removeLikeFromPost(post, user);
+    }
+  }
 }
 
-final likedPostsProvider = StateNotifierProvider<LikedPostsNotifier, List<Post>>(
+final likedPostsProvider =
+    StateNotifierProvider<LikedPostsNotifier, List<Post>>(
   (ref) => LikedPostsNotifier(ref),
 );

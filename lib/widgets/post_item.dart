@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
 import 'package:intl/intl.dart';
+import 'package:syncme/providers/likedposts_provider.dart';
 
 final DateFormat formatter = DateFormat('d/M/y');
 
-class PostItem extends StatefulWidget {
+class PostItem extends ConsumerStatefulWidget {
   const PostItem({
     required this.onSelectPostWithScrolling,
     required this.onSelectPost,
@@ -21,12 +23,12 @@ class PostItem extends StatefulWidget {
   final void Function() onSelectPostWithScrolling;
 
   @override
-  State<PostItem> createState() {
+  ConsumerState<PostItem> createState() {
     return _PostItemState();
   }
 }
 
-class _PostItemState extends State<PostItem> {
+class _PostItemState extends ConsumerState<PostItem> {
   bool _isLiked = false;
   final databaseService = DatabaseService();
 
@@ -50,7 +52,7 @@ class _PostItemState extends State<PostItem> {
           widget.post.countOfLikes++;
         },
       );
-      databaseService.likePost(widget.post);
+      ref.read(likedPostsProvider.notifier).likePost(widget.post);
     } else {
       setState(
         () {
@@ -58,7 +60,7 @@ class _PostItemState extends State<PostItem> {
           widget.post.countOfLikes--;
         },
       );
-      databaseService.removeLikeFromPost(widget.post);
+      ref.read(likedPostsProvider.notifier).removeLikeFromPost(widget.post);
     }
   }
 

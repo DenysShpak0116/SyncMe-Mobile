@@ -19,11 +19,9 @@ class FeedScreen extends ConsumerStatefulWidget {
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   bool _isLoading = true;
-  final databaseService = DatabaseService();
 
   @override
   void dispose() {
-    databaseService.close();
     super.dispose();
   }
 

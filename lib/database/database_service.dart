@@ -110,20 +110,34 @@ class DatabaseService {
     return loadedPosts;
   }
 
-  void likePost(Post post) async {
+  void likePost(Post post, User user) async {
     if (_connection == null) {
       await connect();
     }
     await _connection!.query(
         'update syncme.post set syncme.post.CountOfLikes = syncme.post.CountOfLikes + 1 where syncme.post.PostId = ${post.postId}');
+    await _connection!.query(
+      'INSERT INTO syncme.userlikedpost (PostId, UserId) values (?, ?)',
+      [
+        post.postId,
+        user.userId,
+      ],
+    );
   }
 
-  void removeLikeFromPost(Post post) async {
+  void removeLikeFromPost(Post post, User user) async {
     if (_connection == null) {
       await connect();
     }
     await _connection!.query(
         'update syncme.post set syncme.post.CountOfLikes = syncme.post.CountOfLikes - 1 where syncme.post.PostId = ${post.postId}');
+    await _connection!.query(
+      'delete from syncme.userlikedpost where PostId = ? and UserId = ?',
+      [
+        post.postId,
+        user.userId,
+      ],
+    );
   }
 
   Future<List<Comment>> loadComments(Post post) async {
@@ -226,7 +240,6 @@ class DatabaseService {
     var postsResults = await _connection!.query(
         'select syncme.post.PostId, TextContent, ImgContent, VideoContent, Date, CountOfLikes, AuthorId, EmotionalAnalysisId from syncme.post, syncme.user, syncme.userlikedpost where syncme.user.UserId = syncme.userlikedpost.UserId');
 
-    
     for (var postRow in postsResults) {
       var authorResult = await _connection!.query(
           'select * from syncme.author where syncme.author.AuthorId = ${postRow[6]}');

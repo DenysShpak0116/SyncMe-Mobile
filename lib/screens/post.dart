@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/comment.dart';
 import 'package:syncme/models/post.dart';
+import 'package:syncme/providers/likedposts_provider.dart';
 import 'package:syncme/widgets/comment_item.dart';
 import 'package:syncme/widgets/post_item.dart';
 
-class PostScreen extends StatefulWidget {
+class PostScreen extends ConsumerStatefulWidget {
   const PostScreen({
     required this.postImage,
     required this.scrollingToComments,
@@ -19,12 +21,12 @@ class PostScreen extends StatefulWidget {
   final bool isLiked;
 
   @override
-  State<PostScreen> createState() {
+  ConsumerState<PostScreen> createState() {
     return _PostScreenState();
   }
 }
 
-class _PostScreenState extends State<PostScreen> {
+class _PostScreenState extends ConsumerState<PostScreen> {
   final databaseService = DatabaseService();
   bool _isLiked = false;
   final ScrollController _scrollController = ScrollController();
@@ -54,7 +56,7 @@ class _PostScreenState extends State<PostScreen> {
           widget.post.countOfLikes++;
         },
       );
-      databaseService.likePost(widget.post);
+      ref.read(likedPostsProvider.notifier).likePost(widget.post);
     } else {
       setState(
         () {
@@ -62,7 +64,7 @@ class _PostScreenState extends State<PostScreen> {
           widget.post.countOfLikes--;
         },
       );
-      databaseService.removeLikeFromPost(widget.post);
+      ref.read(likedPostsProvider.notifier).removeLikeFromPost(widget.post);
     }
   }
 
