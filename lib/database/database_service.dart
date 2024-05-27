@@ -134,7 +134,7 @@ class DatabaseService {
     if (_connection == null) {
       await connect();
     }
-    
+
     var result = await _connection!.query(
         'select * from syncme.user where syncme.user.Email = ${user.email} or syncme.user.Username = ${user.username}');
 
@@ -156,6 +156,31 @@ class DatabaseService {
         ]);
 
     return insertResult.insertId;
+  }
+
+  Future<User?> loginUser(String email, String password) async {
+    if (_connection == null) {
+      await connect();
+    }
+
+    var result = await _connection!.query(
+        'select * from syncme.user where syncme.user.Email = \'$email\' and syncme.user.Password = $password');
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    return User(
+        userId: result.first[0],
+        username: result.first[1],
+        password: result.first[2],
+        email: result.first[3],
+        firstName: result.first[4],
+        lastName: result.first[5],
+        sex: result.first[6],
+        country: result.first[7],
+        role: result.first[8],
+      );
   }
 
   Future<Results> executeQuery(String query, [List<Object?>? values]) async {

@@ -35,8 +35,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     return false;
   }
 
-  void _login() {
+  void _login() async {
     _submit();
+
+    bool isDataValid = await ref
+        .read(userProvider.notifier)
+        .setUser(_enteredEmail, _enterdPassowrd);
+
+    if (!isDataValid) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Email or password is not correct!'),
+        ));
+      }
+      return;
+    }
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -48,7 +63,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   void _signup() async {
     _submit();
     _form = GlobalKey<FormState>();
-    
+
     User user = User(
         userId: -1,
         username: _enteredUsername,
@@ -86,11 +101,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       ));
     }
     setState(() {
-        _isSigning = false;
-        _isLogin = true;
-        _enteredUsername = '';
-        _passwordController.clear();
-      });
+      _isSigning = false;
+      _isLogin = true;
+      _enteredUsername = '';
+      _passwordController.clear();
+    });
   }
 
   void _moveToNextSignupForm() {
@@ -160,7 +175,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         height: 12,
       ),
       ElevatedButton(
-        onPressed: _submit,
+        onPressed: _login,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 107, 68, 135),
         ),
@@ -421,6 +436,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           style: const TextStyle(
             color: Color.fromARGB(255, 211, 179, 233),
           ),
+        ),
+        const SizedBox(
+          height: 12,
         ),
         ElevatedButton(
           onPressed: _signup,
