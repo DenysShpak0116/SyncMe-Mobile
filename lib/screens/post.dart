@@ -10,11 +10,13 @@ class PostScreen extends StatefulWidget {
     required this.postImage,
     required this.scrollingToComments,
     required this.post,
+    required this.isLiked,
     super.key,
   });
   final Post post;
   final bool scrollingToComments;
   final Widget? postImage;
+  final bool isLiked;
 
   @override
   State<PostScreen> createState() {
@@ -25,7 +27,6 @@ class PostScreen extends StatefulWidget {
 class _PostScreenState extends State<PostScreen> {
   final databaseService = DatabaseService();
   bool _isLiked = false;
-
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _targetKey = GlobalKey();
 
@@ -34,6 +35,7 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   void initState() {
+    _isLiked = widget.isLiked;
     _loadComments();
     super.initState();
   }

@@ -11,10 +11,12 @@ class PostItem extends StatefulWidget {
     required this.onSelectPost,
     required this.post,
     required this.postImage,
+    required this.isLiked,
     super.key,
   });
   final Post post;
   final Widget? postImage;
+  final bool isLiked;
   final void Function() onSelectPost;
   final void Function() onSelectPostWithScrolling;
 
@@ -27,6 +29,12 @@ class PostItem extends StatefulWidget {
 class _PostItemState extends State<PostItem> {
   bool _isLiked = false;
   final databaseService = DatabaseService();
+
+  @override
+  void initState() {
+    _isLiked = widget.isLiked;
+    super.initState();
+  }
 
   @override
   void dispose() {

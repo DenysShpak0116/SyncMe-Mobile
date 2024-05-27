@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
+import 'package:syncme/providers/likedposts_provider.dart';
+import 'package:syncme/providers/posts_provider.dart';
 import 'package:syncme/screens/post.dart';
 import 'package:syncme/widgets/post_item.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class FeedScreen extends StatefulWidget {
+class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
 
   @override
-  State<FeedScreen> createState() {
+  ConsumerState<FeedScreen> createState() {
     return _FeedScreenState();
   }
 }
 
-class _FeedScreenState extends State<FeedScreen> {
-  List<Post> _posts = [];
+class _FeedScreenState extends ConsumerState<FeedScreen> {
   bool _isLoading = true;
   final databaseService = DatabaseService();
 
@@ -27,19 +29,21 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   void initState() {
-    super.initState();
     _loadPosts();
+    super.initState();
   }
 
   Future<void> _loadPosts() async {
-    List<Post> loadedPosts = await databaseService.loadPosts();
+    await ref.read(postsProvider.notifier).loadPosts();
+    await ref.read(likedPostsProvider.notifier).loadLikedPosts();
+
     setState(() {
-      _posts = loadedPosts;
       _isLoading = false;
     });
   }
 
   void _selectPost(BuildContext context, Post post) {
+    final likedPosts = ref.read(likedPostsProvider);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -51,12 +55,14 @@ class _FeedScreenState extends State<FeedScreen> {
             image: NetworkImage(post.imgContent!),
             fit: BoxFit.cover,
           ),
+          isLiked: likedPosts.where((post) => post.postId == post.postId).isNotEmpty,
         ),
       ),
     );
   }
 
   void _selectPostWithScrolling(BuildContext context, Post post) {
+    final likedPosts = ref.read(likedPostsProvider);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -68,6 +74,7 @@ class _FeedScreenState extends State<FeedScreen> {
             image: NetworkImage(post.imgContent!),
             fit: BoxFit.cover,
           ),
+          isLiked: likedPosts.where((post) => post.postId == post.postId).isNotEmpty,
         ),
       ),
     );
@@ -75,6 +82,9 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final posts = ref.watch(postsProvider);
+    final likedPosts = ref.watch(likedPostsProvider);
+
     Widget content = const Center(
       child: Text('No posts from your groups yet.'),
     );
@@ -84,22 +94,23 @@ class _FeedScreenState extends State<FeedScreen> {
       );
     }
 
-    if (_posts.isNotEmpty) {
+    if (posts.isNotEmpty) {
       content = ListView.builder(
-        itemCount: _posts.length,
+        itemCount: posts.length,
         itemBuilder: (ctx, index) => PostItem(
-          post: _posts[index],
+          post: posts[index],
           postImage: FadeInImage(
             placeholder: MemoryImage(kTransparentImage),
-            image: NetworkImage(_posts[index].imgContent!),
+            image: NetworkImage(posts[index].imgContent!),
             fit: BoxFit.cover,
           ),
           onSelectPost: () {
-            _selectPost(context, _posts[index]);
+            _selectPost(context, posts[index]);
           },
           onSelectPostWithScrolling: () {
-            _selectPostWithScrolling(context, _posts[index]);
+            _selectPostWithScrolling(context, posts[index]);
           },
+          isLiked: likedPosts.where((post) => post.postId == posts[index].postId).isNotEmpty,
         ),
       );
     }

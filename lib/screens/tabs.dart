@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncme/screens/feed.dart';
+import 'package:syncme/widgets/feed.dart';
 
 class TabsScreen extends StatefulWidget {
   const TabsScreen({super.key});
