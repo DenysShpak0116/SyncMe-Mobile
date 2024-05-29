@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
-import 'package:syncme/providers/likedposts_provider.dart';
 import 'package:syncme/providers/posts_provider.dart';
 import 'package:syncme/screens/post.dart';
 import 'package:syncme/widgets/post_item.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class FeedScreen extends ConsumerStatefulWidget {
-  const FeedScreen({super.key});
+class Feed extends ConsumerStatefulWidget {
+  const Feed({super.key});
 
   @override
-  ConsumerState<FeedScreen> createState() {
+  ConsumerState<Feed> createState() {
     return _FeedScreenState();
   }
 }
 
-class _FeedScreenState extends ConsumerState<FeedScreen> {
+class _FeedScreenState extends ConsumerState<Feed> {
   bool _isLoading = true;
 
   @override
@@ -32,17 +30,13 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   }
 
   Future<void> _loadPosts() async {
-    await ref.read(postsProvider.notifier).loadPosts();
-    await ref.read(likedPostsProvider.notifier).loadLikedPosts();
-
     setState(() {
       _isLoading = false;
     });
   }
 
-  void _selectPost(BuildContext context, Post post) {
-    final likedPosts = ref.read(likedPostsProvider);
-    Navigator.push(
+  Future<bool?> _selectPost(BuildContext context, Post post) async {
+    bool? isPostWasLiked = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (ctx) => PostScreen(
@@ -53,15 +47,14 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             image: NetworkImage(post.imgContent!),
             fit: BoxFit.cover,
           ),
-          isLiked: likedPosts.where((post) => post.postId == post.postId).isNotEmpty,
         ),
       ),
     );
+    return isPostWasLiked;
   }
 
-  void _selectPostWithScrolling(BuildContext context, Post post) {
-    final likedPosts = ref.read(likedPostsProvider);
-    Navigator.push(
+  Future<bool?> _selectPostWithScrolling(BuildContext context, Post post) async {
+    bool? isPostWasLiked = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (ctx) => PostScreen(
@@ -72,16 +65,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             image: NetworkImage(post.imgContent!),
             fit: BoxFit.cover,
           ),
-          isLiked: likedPosts.where((post) => post.postId == post.postId).isNotEmpty,
         ),
       ),
     );
+    return isPostWasLiked;
   }
 
   @override
   Widget build(BuildContext context) {
     final posts = ref.watch(postsProvider);
-    final likedPosts = ref.watch(likedPostsProvider);
 
     Widget content = const Center(
       child: Text('No posts from your groups yet.'),
@@ -96,20 +88,18 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       content = ListView.builder(
         itemCount: posts.length,
         itemBuilder: (ctx, index) => PostItem(
-          post: posts[index],
-          postImage: FadeInImage(
-            placeholder: MemoryImage(kTransparentImage),
-            image: NetworkImage(posts[index].imgContent!),
-            fit: BoxFit.cover,
-          ),
-          onSelectPost: () {
-            _selectPost(context, posts[index]);
-          },
-          onSelectPostWithScrolling: () {
-            _selectPostWithScrolling(context, posts[index]);
-          },
-          isLiked: likedPosts.where((post) => post.postId == posts[index].postId).isNotEmpty,
-        ),
+            post: posts[index],
+            postImage: FadeInImage(
+              placeholder: MemoryImage(kTransparentImage),
+              image: NetworkImage(posts[index].imgContent!),
+              fit: BoxFit.cover,
+            ),
+            onSelectPost: ()  {
+              return _selectPost(context, posts[index]);
+            },
+            onSelectPostWithScrolling: () {
+              return _selectPostWithScrolling(context, posts[index]);
+            }),
       );
     }
 

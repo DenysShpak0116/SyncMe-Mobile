@@ -36,7 +36,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _login() async {
-    _submit();
+    if (!_submit()) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Email or password is not correct!'),
+        ));
+      }
+      return;
+    }
 
     bool isDataValid = await ref
         .read(userProvider.notifier)
@@ -61,7 +69,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _signup() async {
-    _submit();
+    if (!_submit()) {
+      return;
+    }
     _form = GlobalKey<FormState>();
 
     User user = User(
@@ -372,7 +382,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           validator: (value) {
             if (value == null ||
                 value.trim().isEmpty ||
-                value.split('.')[0] != value.split('.')[0].toUpperCase()) {
+                value[0] != value[0].toUpperCase()) {
               return 'Firstname must start from capital latter.';
             }
             return null;
@@ -395,7 +405,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           validator: (value) {
             if (value == null ||
                 value.trim().isEmpty ||
-                value.split('.')[0] != value.split('.')[0].toUpperCase()) {
+                value[0] != value[0].toUpperCase()) {
               return 'Lastname must start from capital latter.';
             }
             return null;

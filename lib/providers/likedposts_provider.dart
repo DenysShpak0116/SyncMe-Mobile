@@ -29,7 +29,7 @@ class LikedPostsNotifier extends StateNotifier<List<Post>> {
     }
   }
   void removeLikeFromPost(Post post) {
-    state.remove(post);
+    state.remove(state.firstWhere((post) => post.postId == post.postId));
     final user = ref.read(userProvider);
     
     if (user != null) {

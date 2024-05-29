@@ -185,7 +185,7 @@ class DatabaseService {
     }
 
     var result = await _connection!.query(
-        'select * from syncme.user where syncme.user.Email = ${user.email} or syncme.user.Username = ${user.username}');
+        'select * from syncme.user where syncme.user.Email = ? or syncme.user.Username = ?',[user.email, user.username] );
 
     if (result.isNotEmpty) {
       return -1;
@@ -213,7 +213,7 @@ class DatabaseService {
     }
 
     var result = await _connection!.query(
-        'select * from syncme.user where syncme.user.Email = \'$email\' and syncme.user.Password = $password');
+        'select * from syncme.user where syncme.user.Email = ? and syncme.user.Password = ?',[email,password]);
 
     if (result.isEmpty) {
       return null;
@@ -238,7 +238,7 @@ class DatabaseService {
     }
     List<Post> loadedPosts = [];
     var postsResults = await _connection!.query(
-        'select syncme.post.PostId, TextContent, ImgContent, VideoContent, Date, CountOfLikes, AuthorId, EmotionalAnalysisId from syncme.post, syncme.user, syncme.userlikedpost where syncme.user.UserId = syncme.userlikedpost.UserId');
+        'select syncme.post.PostId, TextContent, ImgContent, VideoContent, Date, CountOfLikes, AuthorId, EmotionalAnalysisId from syncme.post, syncme.user, syncme.userlikedpost where syncme.user.UserId = syncme.userlikedpost.UserId and syncme.user.UserId = ?',[user.userId]);
 
     for (var postRow in postsResults) {
       var authorResult = await _connection!.query(

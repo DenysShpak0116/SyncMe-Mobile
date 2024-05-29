@@ -18,7 +18,6 @@ class App extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF432B55),
         ),
-        textTheme: GoogleFonts.latoTextTheme(),
         scaffoldBackgroundColor: const Color.fromARGB(255, 67, 43, 85),
         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF281A33),),
       ),

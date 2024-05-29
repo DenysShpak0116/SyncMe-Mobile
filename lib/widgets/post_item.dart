@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/post.dart';
 import 'package:intl/intl.dart';
 import 'package:syncme/providers/likedposts_provider.dart';
@@ -13,14 +12,12 @@ class PostItem extends ConsumerStatefulWidget {
     required this.onSelectPost,
     required this.post,
     required this.postImage,
-    required this.isLiked,
     super.key,
   });
   final Post post;
   final Widget? postImage;
-  final bool isLiked;
-  final void Function() onSelectPost;
-  final void Function() onSelectPostWithScrolling;
+  final Future<bool?> Function() onSelectPost;
+  final Future<bool?> Function() onSelectPostWithScrolling;
 
   @override
   ConsumerState<PostItem> createState() {
@@ -30,19 +27,6 @@ class PostItem extends ConsumerStatefulWidget {
 
 class _PostItemState extends ConsumerState<PostItem> {
   bool _isLiked = false;
-  final databaseService = DatabaseService();
-
-  @override
-  void initState() {
-    _isLiked = widget.isLiked;
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    databaseService.close();
-    super.dispose();
-  }
 
   void _like() {
     if (!_isLiked) {
@@ -66,6 +50,11 @@ class _PostItemState extends ConsumerState<PostItem> {
 
   @override
   Widget build(BuildContext context) {
+    _isLiked = ref
+        .watch(likedPostsProvider)
+        .where((post) => post.postId == widget.post.postId)
+        .isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -146,7 +135,14 @@ class _PostItemState extends ConsumerState<PostItem> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: InkWell(
-                onTap: widget.onSelectPost,
+                onTap: () async {
+                  bool? isLiked = await widget.onSelectPost();
+                  if (isLiked != null) {
+                    setState(() {
+                      _isLiked = isLiked;
+                    });
+                  }
+                },
                 child: Expanded(
                   child: Column(
                     children: [
@@ -200,7 +196,14 @@ class _PostItemState extends ConsumerState<PostItem> {
                   ),
                   const Spacer(),
                   TextButton(
-                    onPressed: widget.onSelectPostWithScrolling,
+                    onPressed: () async {
+                      bool? isLiked = await widget.onSelectPostWithScrolling();
+                      if (isLiked != null) {
+                        setState(() {
+                          _isLiked = isLiked;
+                        });
+                      }
+                    },
                     child: const Text(
                       'View all comments',
                       style: TextStyle(
