@@ -16,24 +16,6 @@ class Feed extends ConsumerStatefulWidget {
 }
 
 class _FeedScreenState extends ConsumerState<Feed> {
-  bool _isLoading = true;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    _loadPosts();
-    super.initState();
-  }
-
-  Future<void> _loadPosts() async {
-    setState(() {
-      _isLoading = false;
-    });
-  }
 
   Future<bool?> _selectPost(BuildContext context, Post post) async {
     bool? isPostWasLiked = await Navigator.push<bool>(
@@ -78,11 +60,6 @@ class _FeedScreenState extends ConsumerState<Feed> {
     Widget content = const Center(
       child: Text('No posts from your groups yet.'),
     );
-    if (_isLoading) {
-      content = const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
 
     if (posts.isNotEmpty) {
       content = ListView.builder(

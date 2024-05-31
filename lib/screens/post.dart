@@ -97,7 +97,12 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         .isNotEmpty;
 
     Widget commentsContent = const Center(
-      child: Text('No comments yet.'),
+      child: Text(
+        'No comments yet.',
+        style: TextStyle(
+          color: Color(0xFFB28ECC),
+        ),
+      ),
     );
 
     if (_isCommentsLoading) {

@@ -15,6 +15,7 @@ class AuthScreen extends ConsumerStatefulWidget {
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   var _form = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   var _isLogin = true;
   var _isSigning = false;
@@ -27,7 +28,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   var _chosenSex = 'Male';
   final _passwordController = TextEditingController();
 
-  bool _submit() {
+  bool _submitData() {
     if (_form.currentState!.validate()) {
       _form.currentState!.save();
       return true;
@@ -36,15 +37,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _login() async {
-    if (!_submit()) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Email or password is not correct!'),
-        ));
-      }
+    if (!_submitData()) {
       return;
     }
+    setState(() => _isLoading = true);
 
     bool isDataValid = await ref
         .read(userProvider.notifier)
@@ -54,9 +50,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Email or password is not correct!'),
+          content: Text('Email or password is incorrect!'),
         ));
       }
+      setState(() => _isLoading = false);
+
       return;
     }
 
@@ -69,7 +67,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _signup() async {
-    if (!_submit()) {
+    if (!_submitData()) {
       return;
     }
     _form = GlobalKey<FormState>();
@@ -102,6 +100,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         _enteredUsername = '';
         _passwordController.clear();
       });
+      return;
     }
 
     if (context.mounted) {
@@ -119,7 +118,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   void _moveToNextSignupForm() {
-    if (_submit()) {
+    if (_submitData()) {
       setState(() {
         _isSigning = true;
         _form = GlobalKey<FormState>();
@@ -185,24 +184,32 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         height: 12,
       ),
       ElevatedButton(
-        onPressed: _login,
+        onPressed: _isLoading ? null : _login,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 107, 68, 135),
         ),
-        child: const Text(
-          'Log in',
-          style: TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-        ),
+        child: _isLoading
+            ? const SizedBox(
+                height: 16,
+                width: 16,
+                child: CircularProgressIndicator(),
+              )
+            : const Text(
+                'Log in',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 211, 179, 233),
+                ),
+              ),
       ),
       TextButton(
-        onPressed: () {
-          setState(() {
-            _isLogin = !_isLogin;
-            _form = GlobalKey<FormState>();
-          });
-        },
+        onPressed: _isLoading
+            ? null
+            : () {
+                setState(() {
+                  _isLogin = !_isLogin;
+                  _form = GlobalKey<FormState>();
+                });
+              },
         child: const Text(
           'Register now',
           style: TextStyle(
@@ -291,27 +298,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         ),
         TextFormField(
-          style: const TextStyle(
-            color: Color.fromARGB(255, 211, 179, 233),
-          ),
-          decoration: const InputDecoration(
-            labelStyle: TextStyle(
+            style: const TextStyle(
               color: Color.fromARGB(255, 211, 179, 233),
             ),
-            labelText: 'Enter password',
-          ),
-          obscureText: true,
-          validator: (value) {
-            if (value == null || value.trim().length < 8) {
-              return 'Password must be at least 8 characters long.';
-            }
-            return null;
-          },
-          controller: _passwordController,
-          onSaved: (newValue) {
-            _enterdPassowrd = newValue!;
-          },
-        ),
+            decoration: const InputDecoration(
+              labelStyle: TextStyle(
+                color: Color.fromARGB(255, 211, 179, 233),
+              ),
+              labelText: 'Enter password',
+            ),
+            obscureText: true,
+            validator: (value) {
+              if (value == null || value.trim().length < 8) {
+                return 'Password must be at least 8 characters long.';
+              }
+              return null;
+            },
+            controller: _passwordController,
+            onSaved: (newValue) {
+              _enterdPassowrd = newValue!;
+            },),
         TextFormField(
           style: const TextStyle(
             color: Color.fromARGB(255, 211, 179, 233),

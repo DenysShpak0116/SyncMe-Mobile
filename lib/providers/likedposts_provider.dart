@@ -4,9 +4,7 @@ import 'package:syncme/models/post.dart';
 import 'package:syncme/providers/user_provider.dart';
 
 class LikedPostsNotifier extends StateNotifier<List<Post>> {
-  LikedPostsNotifier(this.ref) : super([]) {
-    loadLikedPosts();
-  }
+  LikedPostsNotifier(this.ref) : super([]);
 
   final Ref ref;
   final databaseService = DatabaseService();
@@ -28,10 +26,11 @@ class LikedPostsNotifier extends StateNotifier<List<Post>> {
       databaseService.likePost(post, user);
     }
   }
+
   void removeLikeFromPost(Post post) {
     state.remove(state.firstWhere((post) => post.postId == post.postId));
     final user = ref.read(userProvider);
-    
+
     if (user != null) {
       databaseService.removeLikeFromPost(post, user);
     }

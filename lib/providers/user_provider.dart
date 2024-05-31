@@ -24,7 +24,9 @@ class UserNotifier extends StateNotifier<User?> {
   }
 
   Future<bool> setUser(String email, String password) async {
-    if (state != null) {
+    if (state != null && state!.email == email && state!.password == password) {
+      await ref.read(postsProvider.notifier).loadPosts();
+    await ref.read(likedPostsProvider.notifier).loadLikedPosts();
       return true;
     }
 

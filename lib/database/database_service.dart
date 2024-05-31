@@ -187,7 +187,7 @@ class DatabaseService {
     var result = await _connection!.query(
         'select * from syncme.user where syncme.user.Email = ? or syncme.user.Username = ?',[user.email, user.username] );
 
-    if (result.isNotEmpty) {
+    if (result.toList().isNotEmpty) {
       return -1;
     }
 
