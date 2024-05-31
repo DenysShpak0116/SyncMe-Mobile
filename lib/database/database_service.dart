@@ -6,6 +6,7 @@ import 'package:syncme/models/group.dart';
 import 'package:syncme/models/post.dart';
 import 'package:syncme/models/user.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 
 class DatabaseService {
   MySqlConnection? _connection;
@@ -323,5 +324,25 @@ class DatabaseService {
       loadedPosts.add(post);
     }
     return loadedPosts;
+  }
+
+  Future<int> insertNewComment(Comment comment) async {
+    if (_connection == null) {
+      await connect();
+    }
+
+    var utcDate = comment.date.toUtc();
+    utcDate = utcDate.add(const Duration(hours: 3));
+
+    var insertResult = await _connection!.query(
+        'INSERT INTO syncme.comment (Text, Date, UserId, PostId) values (?, ?, ?, ?)',
+        [
+          comment.text,
+          utcDate,
+          comment.user.userId,
+          comment.post.postId,
+        ]);
+
+    return insertResult.insertId!;
   }
 }

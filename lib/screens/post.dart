@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/comment.dart';
 import 'package:syncme/models/post.dart';
+import 'package:syncme/providers/comments_provider.dart';
 import 'package:syncme/providers/likedposts_provider.dart';
 import 'package:syncme/widgets/comment_item.dart';
 import 'package:syncme/widgets/post_item.dart';
@@ -25,13 +25,19 @@ class PostScreen extends ConsumerStatefulWidget {
 }
 
 class _PostScreenState extends ConsumerState<PostScreen> {
-  final databaseService = DatabaseService();
   bool _isLiked = false;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _targetKey = GlobalKey();
+  final _commentController = TextEditingController();
 
-  List<Comment> _comments = [];
   bool _isCommentsLoading = true;
+  bool _isCommentLoading = false;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -39,10 +45,38 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    databaseService.close();
-    super.dispose();
+  Future<void> _loadComments() async {
+    await ref.read(commentsProvider(widget.post).notifier).loadComments();
+
+    setState(() {
+      _isCommentsLoading = false;
+    });
+
+    if (widget.scrollingToComments) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) {
+          final RenderBox? renderBox =
+              _targetKey.currentContext?.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            final position = renderBox.localToGlobal(Offset.zero).dy;
+            final offsetPosition = _scrollController.position.pixels +
+                position -
+                kToolbarHeight * 2;
+
+            if (offsetPosition > _scrollController.position.maxScrollExtent) {
+              _scrollController
+                  .jumpTo(_scrollController.position.maxScrollExtent);
+            } else {
+              _scrollController.animateTo(
+                offsetPosition,
+                duration: const Duration(seconds: 1),
+                curve: Curves.easeInOut,
+              );
+            }
+          }
+        },
+      );
+    }
   }
 
   void _like() {
@@ -65,28 +99,16 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     }
   }
 
-  Future<void> _loadComments() async {
-    List<Comment> loadedComments =
-        await databaseService.loadComments(widget.post);
-    setState(() {
-      _comments = loadedComments;
-      _isCommentsLoading = false;
-    });
-    if (widget.scrollingToComments) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) {
-          final RenderBox renderBox =
-              _targetKey.currentContext!.findRenderObject() as RenderBox;
-          final position = renderBox.localToGlobal(Offset.zero).dy;
-
-          _scrollController.animateTo(
-            position - kToolbarHeight * 2,
-            duration: const Duration(seconds: 1),
-            curve: Curves.easeInOut,
-          );
-        },
-      );
+  void _comment() async {
+    if (_commentController.text.trim().isEmpty) {
+      return;
     }
+    await ref
+        .read(commentsProvider(widget.post).notifier)
+        .comment(_commentController.text);
+    setState(() {
+      _commentController.clear();
+    });
   }
 
   @override
@@ -96,13 +118,16 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         .where((post) => post.postId == widget.post.postId)
         .isNotEmpty;
 
+    List<Comment> comments = ref.watch(commentsProvider(widget.post));
+
     Widget commentsContent = const Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: EdgeInsets.symmetric(vertical: 10),
       child: Center(
         child: Text(
           'No comments yet.',
           style: TextStyle(
             color: Color(0xFFB28ECC),
+            fontSize: 20,
           ),
         ),
       ),
@@ -120,11 +145,11 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       );
     }
 
-    if (!_isCommentsLoading && _comments.isNotEmpty) {
+    if (!_isCommentsLoading && comments.isNotEmpty) {
       commentsContent = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children:
-            _comments.map((comment) => CommentItem(comment: comment)).toList(),
+            comments.map((comment) => CommentItem(comment: comment)).toList(),
       );
     }
 
@@ -224,35 +249,33 @@ class _PostScreenState extends ConsumerState<PostScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Expanded(
-                  child: Column(
-                    children: [
-                      Text(
-                        widget.post.textContent,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFFD3B3E9),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.post.textContent,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFD3B3E9),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 12,
+                    ),
+                    if (widget.post.imgContent != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20.0),
+                          child: widget.postImage,
                         ),
                       ),
+                    if (widget.post.imgContent != null)
                       const SizedBox(
-                        height: 6,
+                        height: 5,
                       ),
-                      if (widget.post.imgContent != null)
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20.0),
-                            child: widget.postImage,
-                          ),
-                        ),
-                      if (widget.post.imgContent != null)
-                        const SizedBox(
-                          height: 5,
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
               Padding(
@@ -282,11 +305,11 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 4,
-                key: _targetKey,
               ),
               Padding(
+                key: _targetKey,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -297,14 +320,15 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                           color: const Color(0xFF794D98),
                           borderRadius: BorderRadius.circular(15.0),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: TextField(
-                            cursorColor: Color.fromARGB(255, 94, 59, 118),
-                            style: TextStyle(
+                            controller: _commentController,
+                            cursorColor: const Color.fromARGB(255, 94, 59, 118),
+                            style: const TextStyle(
                               color: Color(0xFFD3B3E9),
                             ),
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Write a comment...',
                               hintStyle: TextStyle(
                                 color: Color(0xFFD3B3E9),
@@ -317,16 +341,25 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
-                        Icons.send_rounded,
-                        color: Color(0xFF794D98),
-                      ),
-                      onPressed: () {},
+                      icon: _isCommentLoading
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(),
+                            )
+                          : const Icon(
+                              Icons.send_rounded,
+                              color: Color(0xFF794D98),
+                            ),
+                      onPressed: _isCommentLoading ? null : _comment,
                     ),
                   ],
                 ),
               ),
               commentsContent,
+              const SizedBox(
+                height: 4,
+              )
             ],
           ),
         ),

@@ -9,7 +9,7 @@ class Comment {
     required this.user,
     required this.post,
   });
-  final int commentId;
+  int commentId;
   final String text;
   final DateTime date;
   final User user;
