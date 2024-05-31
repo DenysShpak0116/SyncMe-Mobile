@@ -96,11 +96,14 @@ class _PostScreenState extends ConsumerState<PostScreen> {
         .where((post) => post.postId == widget.post.postId)
         .isNotEmpty;
 
-    Widget commentsContent = const Center(
-      child: Text(
-        'No comments yet.',
-        style: TextStyle(
-          color: Color(0xFFB28ECC),
+    Widget commentsContent = const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Center(
+        child: Text(
+          'No comments yet.',
+          style: TextStyle(
+            color: Color(0xFFB28ECC),
+          ),
         ),
       ),
     );

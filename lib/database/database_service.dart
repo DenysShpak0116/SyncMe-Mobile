@@ -5,18 +5,25 @@ import 'package:syncme/models/emotional_analysis.dart';
 import 'package:syncme/models/group.dart';
 import 'package:syncme/models/post.dart';
 import 'package:syncme/models/user.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DatabaseService {
   MySqlConnection? _connection;
 
+  final String host = dotenv.env['DB_HOST']!;
+  final int port = int.parse(dotenv.env['DB_PORT']!);
+  final String database = dotenv.env['DB_DATABASE']!;
+  final String username = dotenv.env['DB_USERNAME']!;
+  final String password = dotenv.env['DB_PASSWORD']!;
+
   Future<void> connect() async {
     _connection = await MySqlConnection.connect(
       ConnectionSettings(
-        host: 'syncme.mysql.database.azure.com',
-        port: 3306,
-        user: 'SyncMeAdmin',
-        db: 'syncme',
-        password: 'Smad_mysql123',
+        host: host,
+        port: port,
+        user: username,
+        db: database,
+        password: password,
       ),
     );
   }
@@ -185,7 +192,8 @@ class DatabaseService {
     }
 
     var result = await _connection!.query(
-        'select * from syncme.user where syncme.user.Email = ? or syncme.user.Username = ?',[user.email, user.username] );
+        'select * from syncme.user where syncme.user.Email = ? or syncme.user.Username = ?',
+        [user.email, user.username]);
 
     if (result.toList().isNotEmpty) {
       return -1;
@@ -207,15 +215,15 @@ class DatabaseService {
     return insertResult.insertId;
   }
 
-  Future<User?> loginUser(String email, String password) async {
+  Future<User?> getUserByEmail(String email) async {
     if (_connection == null) {
       await connect();
     }
 
     var result = await _connection!.query(
-        'select * from syncme.user where syncme.user.Email = ? and syncme.user.Password = ?',[email,password]);
+        'select * from syncme.user where syncme.user.Email = ?', [email]);
 
-    if (result.isEmpty) {
+    if (result.toList().isEmpty) {
       return null;
     }
 
@@ -238,7 +246,8 @@ class DatabaseService {
     }
     List<Post> loadedPosts = [];
     var postsResults = await _connection!.query(
-        'select syncme.post.PostId, TextContent, ImgContent, VideoContent, Date, CountOfLikes, AuthorId, EmotionalAnalysisId from syncme.post, syncme.user, syncme.userlikedpost where syncme.user.UserId = syncme.userlikedpost.UserId and syncme.user.UserId = ?',[user.userId]);
+        'select syncme.post.PostId, TextContent, ImgContent, VideoContent, Date, CountOfLikes, AuthorId, EmotionalAnalysisId from syncme.post, syncme.user, syncme.userlikedpost where syncme.user.UserId = syncme.userlikedpost.UserId and syncme.user.UserId = ?',
+        [user.userId]);
 
     for (var postRow in postsResults) {
       var authorResult = await _connection!.query(

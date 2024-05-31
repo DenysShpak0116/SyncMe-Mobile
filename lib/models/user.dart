@@ -24,7 +24,7 @@ class User {
   });
   int userId;
   final String username;
-  final String password;
+  String password;
   final String email;
   final String firstName;
   final String lastName;

@@ -171,7 +171,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         ),
         obscureText: true,
         validator: (value) {
-          if (value == null || value.trim().length < 8) {
+          if (value == null){ //|| value.trim().length < 8) {
             return 'Password must be at least 8 characters long.';
           }
           return null;

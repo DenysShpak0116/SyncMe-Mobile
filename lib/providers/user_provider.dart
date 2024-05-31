@@ -3,6 +3,7 @@ import 'package:syncme/database/database_service.dart';
 import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/likedposts_provider.dart';
 import 'package:syncme/providers/posts_provider.dart';
+import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 class UserNotifier extends StateNotifier<User?> {
   UserNotifier(this.ref) : super(null);
@@ -10,6 +11,8 @@ class UserNotifier extends StateNotifier<User?> {
   final Ref ref;
 
   Future<bool> createNewUser(User user) async {
+    user.password = await hashPassword(user.password);
+
     final userId = await databaseService.insertNewUser(user);
 
     if (userId == -1) {
@@ -24,15 +27,19 @@ class UserNotifier extends StateNotifier<User?> {
   }
 
   Future<bool> setUser(String email, String password) async {
-    if (state != null && state!.email == email && state!.password == password) {
+    final User? user = await databaseService.getUserByEmail(email);
+
+    if (user == null) {
+      return false;
+    }
+
+    if (state != null && user.password == state!.password) {
       await ref.read(postsProvider.notifier).loadPosts();
-    await ref.read(likedPostsProvider.notifier).loadLikedPosts();
+      await ref.read(likedPostsProvider.notifier).loadLikedPosts();
       return true;
     }
 
-    final User? user = await databaseService.loginUser(email, password);
-
-    if (user == null) {
+    if (!await checkPassword(password, user.password)) {
       return false;
     }
 
@@ -42,6 +49,21 @@ class UserNotifier extends StateNotifier<User?> {
     await ref.read(likedPostsProvider.notifier).loadLikedPosts();
 
     return true;
+  }
+
+  Future<String> hashPassword(String password) async {
+    final salt = await FlutterBcrypt.saltWithRounds(rounds: 14);
+    final hashedPassword =
+        await FlutterBcrypt.hashPw(password: password, salt: salt);
+    return hashedPassword;
+  }
+
+  Future<bool> checkPassword(String password, String hashedPassword) async {
+    final result = await FlutterBcrypt.verify(
+      password: password,
+      hash: hashedPassword,
+    );
+    return result;
   }
 }
 
