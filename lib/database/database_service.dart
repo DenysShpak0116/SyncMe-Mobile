@@ -6,7 +6,6 @@ import 'package:syncme/models/group.dart';
 import 'package:syncme/models/post.dart';
 import 'package:syncme/models/user.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:intl/intl.dart';
 
 class DatabaseService {
   MySqlConnection? _connection;
@@ -40,62 +39,68 @@ class DatabaseService {
       await connect();
     }
     List<Post> loadedPosts = [];
+    List<Author> loadedAuthors = [];
     var postsResults = await _connection!.query('select * from syncme.post');
 
     for (var postRow in postsResults) {
-      var authorResult = await _connection!.query(
-          'select * from syncme.author where syncme.author.AuthorId = ${postRow[6]}');
-      ResultRow authorRow = authorResult.toList()[0];
+      if (loadedAuthors
+          .where((element) => element.authorId == postRow[4])
+          .isEmpty) {
+        var authorResult = await _connection!.query(
+            'select * from syncme.author where syncme.author.AuthorId = ${postRow[4]}');
+        ResultRow authorRow = authorResult.toList()[0];
 
-      var groupResult = await _connection!.query(
-          'select * from syncme.group where syncme.group.GroupId = ${authorRow[5]}');
-      ResultRow groupRow = groupResult.toList()[0];
+        var groupResult = await _connection!.query(
+            'select * from syncme.group where syncme.group.GroupId = ${authorRow[5]}');
+        ResultRow groupRow = groupResult.toList()[0];
 
-      EmotionalAnalysis? eaGroup;
-      if (groupRow[4] != null) {
-        var eaResult = await _connection!.query(
-            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${groupRow[4]}');
-        ResultRow eaRow = eaResult.toList()[0];
-        eaGroup = EmotionalAnalysis(
-            emotionalAnalysisId: eaRow[0],
-            emotionalState: eaRow[1],
-            emotionalIcon: eaRow[2]);
+        EmotionalAnalysis? eaGroup;
+        if (groupRow[4] != null) {
+          var eaResult = await _connection!.query(
+              'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${groupRow[4]}');
+          ResultRow eaRow = eaResult.toList()[0];
+          eaGroup = EmotionalAnalysis(
+              emotionalAnalysisId: eaRow[0],
+              emotionalState: eaRow[1],
+              emotionalIcon: eaRow[2]);
+        }
+
+        Group group = Group(
+          groupId: groupRow[0],
+          name: groupRow[1],
+          groupImage: groupRow[2],
+          groundBackgroundImage: groupRow[3],
+          emotionalAnalysis: eaGroup,
+        );
+
+        EmotionalAnalysis? eaAuthor;
+        if (authorRow[6] != null) {
+          var eaResult = await _connection!.query(
+              'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${authorRow[6]}');
+          ResultRow eaRow = eaResult.toList()[0];
+          eaAuthor = EmotionalAnalysis(
+              emotionalAnalysisId: eaRow[0],
+              emotionalState: eaRow[1],
+              emotionalIcon: eaRow[2]);
+        }
+
+        Author author = Author(
+          authorId: authorRow[0],
+          name: authorRow[1],
+          socialMedia: authorRow[2],
+          authorImage: authorRow[3],
+          authorBackgroundImage: authorRow[4],
+          group: group,
+          emotionalAnalysis: eaAuthor,
+          username: authorRow[7],
+        );
+        loadedAuthors.add(author);
       }
-
-      Group group = Group(
-        groupId: groupRow[0],
-        name: groupRow[1],
-        groupImage: groupRow[2],
-        groundBackgroundImage: groupRow[3],
-        emotionalAnalysis: eaGroup,
-      );
-
-      EmotionalAnalysis? eaAuthor;
-      if (authorRow[6] != null) {
-        var eaResult = await _connection!.query(
-            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${authorRow[6]}');
-        ResultRow eaRow = eaResult.toList()[0];
-        eaAuthor = EmotionalAnalysis(
-            emotionalAnalysisId: eaRow[0],
-            emotionalState: eaRow[1],
-            emotionalIcon: eaRow[2]);
-      }
-
-      Author author = Author(
-        authorId: authorRow[0],
-        name: authorRow[1],
-        socialMedia: authorRow[2],
-        authorImage: authorRow[3],
-        authorBackgroundImage: authorRow[4],
-        group: group,
-        emotionalAnalysis: eaAuthor,
-        username: authorRow[7],
-      );
 
       EmotionalAnalysis? eaPost;
-      if (postRow[7] != null) {
+      if (postRow[5] != null) {
         var eaResult = await _connection!.query(
-            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${postRow[7]}');
+            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${postRow[5]}');
         ResultRow eaRow = eaResult.toList()[0];
         eaPost = EmotionalAnalysis(
             emotionalAnalysisId: eaRow[0],
@@ -103,14 +108,118 @@ class DatabaseService {
             emotionalIcon: eaRow[2]);
       }
 
+      String? imgContent;
+      var imgResult = await _connection!.query(
+          'select * from syncme.xphoto where syncme.xphoto.PostId = ${postRow[0]}');
+      imgContent = imgResult.toList().isEmpty ? null : imgResult.toList()[0][1];
+
       Post post = Post(
         postId: postRow[0],
         textContent: postRow[1].toString(),
-        imgContent: postRow[2],
-        videoContent: postRow[3],
-        date: postRow[4],
-        countOfLikes: postRow[5],
-        author: author,
+        imgContent: imgContent,
+        videoContent: null,
+        date: postRow[2],
+        countOfLikes: postRow[3],
+        author: loadedAuthors
+          .firstWhere((element) => element.authorId == postRow[4]),
+        emotionalAnalysis: eaPost,
+      );
+      loadedPosts.add(post);
+    }
+    return loadedPosts;
+  }
+
+  Future<List<Post>> loadLikedPosts(User user) async {
+    if (_connection == null) {
+      await connect();
+    }
+    List<Post> loadedPosts = [];
+    List<Author> loadedAuthors = [];
+
+    var postsResults = await _connection!.query(
+        'select syncme.post.PostId, TextContent, Date, CountOfLikes, AuthorId, EmotionalAnalysisId from syncme.post, syncme.user, syncme.userlikedpost where syncme.user.UserId = syncme.userlikedpost.UserId and syncme.user.UserId = ? and syncme.post.PostId = syncme.userlikedpost.PostId',
+        [user.userId]);
+
+    for (var postRow in postsResults) {
+      if (loadedAuthors
+          .where((element) => element.authorId == postRow[4])
+          .isEmpty) {
+        var authorResult = await _connection!.query(
+            'select * from syncme.author where syncme.author.AuthorId = ${postRow[4]}');
+        ResultRow authorRow = authorResult.toList()[0];
+
+        var groupResult = await _connection!.query(
+            'select * from syncme.group where syncme.group.GroupId = ${authorRow[5]}');
+        ResultRow groupRow = groupResult.toList()[0];
+
+        EmotionalAnalysis? eaGroup;
+        if (groupRow[4] != null) {
+          var eaResult = await _connection!.query(
+              'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${groupRow[4]}');
+          ResultRow eaRow = eaResult.toList()[0];
+          eaGroup = EmotionalAnalysis(
+              emotionalAnalysisId: eaRow[0],
+              emotionalState: eaRow[1],
+              emotionalIcon: eaRow[2]);
+        }
+
+        Group group = Group(
+          groupId: groupRow[0],
+          name: groupRow[1],
+          groupImage: groupRow[2],
+          groundBackgroundImage: groupRow[3],
+          emotionalAnalysis: eaGroup,
+        );
+
+        EmotionalAnalysis? eaAuthor;
+        if (authorRow[6] != null) {
+          var eaResult = await _connection!.query(
+              'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${authorRow[6]}');
+          ResultRow eaRow = eaResult.toList()[0];
+          eaAuthor = EmotionalAnalysis(
+              emotionalAnalysisId: eaRow[0],
+              emotionalState: eaRow[1],
+              emotionalIcon: eaRow[2]);
+        }
+
+        Author author = Author(
+          authorId: authorRow[0],
+          name: authorRow[1],
+          socialMedia: authorRow[2],
+          authorImage: authorRow[3],
+          authorBackgroundImage: authorRow[4],
+          group: group,
+          emotionalAnalysis: eaAuthor,
+          username: authorRow[7],
+        );
+        loadedAuthors.add(author);
+      }
+
+      EmotionalAnalysis? eaPost;
+      if (postRow[5] != null) {
+        var eaResult = await _connection!.query(
+            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${postRow[5]}');
+        ResultRow eaRow = eaResult.toList()[0];
+        eaPost = EmotionalAnalysis(
+            emotionalAnalysisId: eaRow[0],
+            emotionalState: eaRow[1],
+            emotionalIcon: eaRow[2]);
+      }
+
+      String? imgContent;
+      var imgResult = await _connection!.query(
+          'select * from syncme.xphoto where syncme.xphoto.PostId = ${postRow[0]}');
+      imgContent = imgResult.toList().isEmpty ? null : imgResult.toList()[0][1];
+
+      Post post = Post(
+        postId: postRow[0],
+        textContent: postRow[1].toString(),
+        imgContent: imgContent,
+        videoContent: null,
+        date: postRow[2],
+        countOfLikes: postRow[3],
+        author: loadedAuthors
+          .firstWhere((element) => element.authorId == postRow[4]),
         emotionalAnalysis: eaPost,
       );
       loadedPosts.add(post);
@@ -155,7 +264,7 @@ class DatabaseService {
     List<Comment> loadedComments = [];
 
     var commentsResults = await _connection!.query(
-        'select * from syncme.comment where syncme.comment.PostId = ${post.postId} order by syncme.comment.Date');
+        'select * from syncme.comment where syncme.comment.PostId = ${post.postId} order by syncme.comment.Date desc');
 
     for (var commentRow in commentsResults) {
       var userResult = await _connection!.query(
@@ -239,91 +348,6 @@ class DatabaseService {
       country: result.first[7],
       role: result.first[8],
     );
-  }
-
-  Future<List<Post>> loadLikedPosts(User user) async {
-    if (_connection == null) {
-      await connect();
-    }
-    List<Post> loadedPosts = [];
-    var postsResults = await _connection!.query(
-        'select syncme.post.PostId, TextContent, ImgContent, VideoContent, Date, CountOfLikes, AuthorId, EmotionalAnalysisId from syncme.post, syncme.user, syncme.userlikedpost where syncme.user.UserId = syncme.userlikedpost.UserId and syncme.user.UserId = ?',
-        [user.userId]);
-
-    for (var postRow in postsResults) {
-      var authorResult = await _connection!.query(
-          'select * from syncme.author where syncme.author.AuthorId = ${postRow[6]}');
-      ResultRow authorRow = authorResult.toList()[0];
-
-      var groupResult = await _connection!.query(
-          'select * from syncme.group where syncme.group.GroupId = ${authorRow[5]}');
-      ResultRow groupRow = groupResult.toList()[0];
-
-      EmotionalAnalysis? eaGroup;
-      if (groupRow[4] != null) {
-        var eaResult = await _connection!.query(
-            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${groupRow[4]}');
-        ResultRow eaRow = eaResult.toList()[0];
-        eaGroup = EmotionalAnalysis(
-            emotionalAnalysisId: eaRow[0],
-            emotionalState: eaRow[1],
-            emotionalIcon: eaRow[2]);
-      }
-
-      Group group = Group(
-        groupId: groupRow[0],
-        name: groupRow[1],
-        groupImage: groupRow[2],
-        groundBackgroundImage: groupRow[3],
-        emotionalAnalysis: eaGroup,
-      );
-
-      EmotionalAnalysis? eaAuthor;
-      if (authorRow[6] != null) {
-        var eaResult = await _connection!.query(
-            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${authorRow[6]}');
-        ResultRow eaRow = eaResult.toList()[0];
-        eaAuthor = EmotionalAnalysis(
-            emotionalAnalysisId: eaRow[0],
-            emotionalState: eaRow[1],
-            emotionalIcon: eaRow[2]);
-      }
-
-      Author author = Author(
-        authorId: authorRow[0],
-        name: authorRow[1],
-        socialMedia: authorRow[2],
-        authorImage: authorRow[3],
-        authorBackgroundImage: authorRow[4],
-        group: group,
-        emotionalAnalysis: eaAuthor,
-        username: authorRow[7],
-      );
-
-      EmotionalAnalysis? eaPost;
-      if (postRow[7] != null) {
-        var eaResult = await _connection!.query(
-            'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${postRow[7]}');
-        ResultRow eaRow = eaResult.toList()[0];
-        eaPost = EmotionalAnalysis(
-            emotionalAnalysisId: eaRow[0],
-            emotionalState: eaRow[1],
-            emotionalIcon: eaRow[2]);
-      }
-
-      Post post = Post(
-        postId: postRow[0],
-        textContent: postRow[1].toString(),
-        imgContent: postRow[2],
-        videoContent: postRow[3],
-        date: postRow[4],
-        countOfLikes: postRow[5],
-        author: author,
-        emotionalAnalysis: eaPost,
-      );
-      loadedPosts.add(post);
-    }
-    return loadedPosts;
   }
 
   Future<int> insertNewComment(Comment comment) async {

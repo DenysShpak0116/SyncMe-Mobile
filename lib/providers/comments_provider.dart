@@ -24,8 +24,20 @@ class CommentsNotifier extends StateNotifier<List<Comment>> {
         post: post);
 
     comment.commentId = await databaseService.insertNewComment(comment);
-    state.insert(0,comment);
+    state.insert(0, comment);
   }
+
+  // Future<void> commentByIndex(String commentText, int index) async {
+  //   Comment comment = Comment(
+  //       commentId: -1,
+  //       text: commentText,
+  //       date: DateTime.now(),
+  //       user: ref.read(userProvider)!,
+  //       post: post);
+
+  //   comment.commentId = await databaseService.insertNewComment(comment);
+  //   state.insert(index + 1, comment);
+  // }
 }
 
 final commentsProvider =

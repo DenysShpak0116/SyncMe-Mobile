@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:syncme/models/comment.dart';
-import 'package:syncme/widgets/post_item.dart';
+import 'package:intl/intl.dart';
+
+final DateFormat formatterForComments = DateFormat('H:m d/M/y');
 
 class CommentItem extends StatelessWidget {
-  const CommentItem({required this.comment, super.key});
+  const CommentItem({required this.comment, required this.onReply, super.key});
   final Comment comment;
+  final void Function() onReply;
 
   @override
   Widget build(BuildContext context) {
@@ -12,28 +15,49 @@ class CommentItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          leading: const CircleAvatar(
-            backgroundImage: NetworkImage(
-                'https://pbs.twimg.com/profile_images/994592419705274369/RLplF55e_400x400.jpg'),
+          leading: CircleAvatar(
+            backgroundImage: NetworkImage(comment.user.logo),
           ),
           title: Text(
-            comment.user.username,
+            '@${comment.user.username}',
             style: const TextStyle(
               color: Color(0xFFB28ECC),
             ),
           ),
           subtitle: Text(
-            'at • ${formatter.format(comment.date)}',
+            'at • ${formatterForComments.format(comment.date)}',
             style: const TextStyle(color: Color(0xFFB28ECC)),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             comment.text,
             style: const TextStyle(
               color: Color(0xFFD3B3E9),
             ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                onPressed: onReply,
+                icon: const Icon(
+                  Icons.reply,
+                  color: Color(0xFFD3B3E9),
+                ),
+                label: const Text(
+                  'Reply',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFD3B3E9),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

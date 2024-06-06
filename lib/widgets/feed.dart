@@ -16,7 +16,6 @@ class Feed extends ConsumerStatefulWidget {
 }
 
 class _FeedScreenState extends ConsumerState<Feed> {
-
   Future<bool?> _selectPost(BuildContext context, Post post) async {
     bool? isPostWasLiked = await Navigator.push<bool>(
       context,
@@ -24,29 +23,34 @@ class _FeedScreenState extends ConsumerState<Feed> {
         builder: (ctx) => PostScreen(
           post: post,
           scrollingToComments: false,
-          postImage: FadeInImage(
-            placeholder: MemoryImage(kTransparentImage),
-            image: NetworkImage(post.imgContent!),
-            fit: BoxFit.cover,
-          ),
+          postImage: post.imgContent == null
+              ? null
+              : FadeInImage(
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(post.imgContent!),
+                  fit: BoxFit.cover,
+                ),
         ),
       ),
     );
     return isPostWasLiked;
   }
 
-  Future<bool?> _selectPostWithScrolling(BuildContext context, Post post) async {
+  Future<bool?> _selectPostWithScrolling(
+      BuildContext context, Post post) async {
     bool? isPostWasLiked = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (ctx) => PostScreen(
           post: post,
           scrollingToComments: true,
-          postImage: FadeInImage(
-            placeholder: MemoryImage(kTransparentImage),
-            image: NetworkImage(post.imgContent!),
-            fit: BoxFit.cover,
-          ),
+          postImage: post.imgContent == null
+              ? null
+              : FadeInImage(
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(post.imgContent!),
+                  fit: BoxFit.cover,
+                ),
         ),
       ),
     );
@@ -66,12 +70,14 @@ class _FeedScreenState extends ConsumerState<Feed> {
         itemCount: posts.length,
         itemBuilder: (ctx, index) => PostItem(
             post: posts[index],
-            postImage: FadeInImage(
-              placeholder: MemoryImage(kTransparentImage),
-              image: NetworkImage(posts[index].imgContent!),
-              fit: BoxFit.cover,
-            ),
-            onSelectPost: ()  {
+            postImage: posts[index].imgContent == null
+                ? null
+                : FadeInImage(
+                    placeholder: MemoryImage(kTransparentImage),
+                    image: NetworkImage(posts[index].imgContent!),
+                    fit: BoxFit.cover,
+                  ),
+            onSelectPost: () {
               return _selectPost(context, posts[index]);
             },
             onSelectPostWithScrolling: () {

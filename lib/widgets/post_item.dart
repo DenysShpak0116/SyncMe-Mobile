@@ -85,49 +85,60 @@ class _PostItemState extends ConsumerState<PostItem> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Text(
-                        '75%',
-                        style: TextStyle(
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${widget.post.emotionalAnalysis!.emotionalState}%',
+                          style: const TextStyle(
+                            color: Color(0xFFB28ECC),
+                          ),
+                        ),
+                        const Icon(
+                          size: 20,
+                          Icons.emoji_emotions,
                           color: Color(0xFFB28ECC),
                         ),
-                      ),
-                      const Icon(
-                        size: 20,
-                        Icons.emoji_emotions,
-                        color: Color(0xFFB28ECC),
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      Text(
-                        formatter.format(
-                          widget.post.date,
+                        const SizedBox(
+                          width: 4,
                         ),
-                        style: const TextStyle(
-                          color: Color(0xFFB28ECC),
+                        Text(
+                          formatter.format(
+                            widget.post.date,
+                          ),
+                          style: const TextStyle(
+                            color: Color(0xFFB28ECC),
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      const Icon(
-                        IconData(
-                          0xf0586,
-                          fontFamily: 'MaterialIcons',
+                        const SizedBox(
+                          width: 4,
                         ),
-                        color: Color(0xff744E8E),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.more_vert,
-                          color: Color(0xff744E8E),
+
+                        Image.asset(
+                          'assets/images/x.png',
+                          width: 16.0,
+                          height: 16.0,
+                          color: const Color(0xFFB28ECC),
                         ),
-                        onPressed: () {},
-                      ),
-                    ],
+                        // const Icon(
+                        //   IconData(
+                        //     0xf0586,
+                        //     fontFamily: 'MaterialIcons',
+                        //   ),
+                        //   color: Color(0xff744E8E),
+                        // ),
+                        // IconButton(
+                        //   icon: const Icon(
+                        //     Icons.more_vert,
+                        //     color: Color(0xff744E8E),
+                        //   ),
+                        //   onPressed: () {},
+                        // ),
+                      ],
+                    ),
                   ),
                 )
               ],

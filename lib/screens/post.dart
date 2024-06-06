@@ -103,11 +103,18 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     if (_commentController.text.trim().isEmpty) {
       return;
     }
-    await ref
-        .read(commentsProvider(widget.post).notifier)
-        .comment(_commentController.text);
+    setState(() {
+      _isCommentLoading = true;
+    });
+    
+      await ref
+          .read(commentsProvider(widget.post).notifier)
+          .comment(_commentController.text.trim());
+    
+
     setState(() {
       _commentController.clear();
+      _isCommentLoading = false;
     });
   }
 
@@ -148,8 +155,42 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     if (!_isCommentsLoading && comments.isNotEmpty) {
       commentsContent = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:
-            comments.map((comment) => CommentItem(comment: comment)).toList(),
+        children: comments
+            .map((comment) => CommentItem(
+                  comment: comment,
+                  onReply: () {
+                    setState(() {
+                      _commentController.text = '@${comment.user.username}, ';
+                    });
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (_) {
+                        final RenderBox? renderBox = _targetKey.currentContext
+                            ?.findRenderObject() as RenderBox?;
+                        if (renderBox != null) {
+                          final position =
+                              renderBox.localToGlobal(Offset.zero).dy;
+                          final offsetPosition =
+                              _scrollController.position.pixels +
+                                  position -
+                                  kToolbarHeight * 2;
+
+                          if (offsetPosition >
+                              _scrollController.position.maxScrollExtent) {
+                            _scrollController.jumpTo(
+                                _scrollController.position.maxScrollExtent);
+                          } else {
+                            _scrollController.animateTo(
+                              offsetPosition,
+                              duration: const Duration(seconds: 1),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        }
+                      },
+                    );
+                  },
+                ))
+            .toList(),
       );
     }
 
@@ -200,49 +241,45 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        const Text(
-                          '75%',
-                          style: TextStyle(
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text(
+                            '75%',
+                            style: TextStyle(
+                              color: Color(0xFFB28ECC),
+                            ),
+                          ),
+                          const Icon(
+                            size: 20,
+                            Icons.emoji_emotions,
                             color: Color(0xFFB28ECC),
                           ),
-                        ),
-                        const Icon(
-                          size: 20,
-                          Icons.emoji_emotions,
-                          color: Color(0xFFB28ECC),
-                        ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          formatter.format(
-                            widget.post.date,
+                          const SizedBox(
+                            width: 4,
                           ),
-                          style: const TextStyle(
-                            color: Color(0xFFB28ECC),
+                          Text(
+                            formatter.format(
+                              widget.post.date,
+                            ),
+                            style: const TextStyle(
+                              color: Color(0xFFB28ECC),
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-                        const Icon(
-                          IconData(
-                            0xf0586,
-                            fontFamily: 'MaterialIcons',
+                          const SizedBox(
+                            width: 4,
                           ),
-                          color: Color(0xff744E8E),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.more_vert,
-                            color: Color(0xff744E8E),
+                          Image.asset(
+                            'assets/images/x.png',
+                            width: 18.0,
+                            height: 18.0,
+                            color: const Color(0xFFB28ECC),
                           ),
-                          onPressed: () {},
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   )
                 ],
