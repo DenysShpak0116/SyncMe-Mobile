@@ -121,7 +121,7 @@ class DatabaseService {
         date: postRow[2],
         countOfLikes: postRow[3],
         author: loadedAuthors
-          .firstWhere((element) => element.authorId == postRow[4]),
+            .firstWhere((element) => element.authorId == postRow[4]),
         emotionalAnalysis: eaPost,
       );
       loadedPosts.add(post);
@@ -219,7 +219,7 @@ class DatabaseService {
         date: postRow[2],
         countOfLikes: postRow[3],
         author: loadedAuthors
-          .firstWhere((element) => element.authorId == postRow[4]),
+            .firstWhere((element) => element.authorId == postRow[4]),
         emotionalAnalysis: eaPost,
       );
       loadedPosts.add(post);
@@ -368,5 +368,17 @@ class DatabaseService {
         ]);
 
     return insertResult.insertId!;
+  }
+
+  void updateLogo(User user, String logo) async {
+    if (_connection == null) {
+      await connect();
+    }
+    await _connection!.query(
+        'update syncme.user set syncme.user.logo = ? where syncme.user.UserId = ?',
+        [
+          logo,
+          user.userId,
+        ]);
   }
 }

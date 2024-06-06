@@ -65,6 +65,11 @@ class UserNotifier extends StateNotifier<User?> {
     );
     return result;
   }
+
+  Future<void> setLogo(String logo) async {
+    state!.logo = logo;
+    databaseService.updateLogo(state!,logo);
+  }
 }
 
 final userProvider = StateNotifierProvider<UserNotifier, User?>(

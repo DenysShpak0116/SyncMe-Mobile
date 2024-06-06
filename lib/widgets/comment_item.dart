@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/models/comment.dart';
 import 'package:intl/intl.dart';
+import 'package:syncme/models/user.dart';
+import 'package:syncme/providers/user_provider.dart';
 
 final DateFormat formatterForComments = DateFormat('H:m d/M/y');
 
-class CommentItem extends StatelessWidget {
+class CommentItem extends ConsumerWidget {
   const CommentItem({required this.comment, required this.onReply, super.key});
   final Comment comment;
   final void Function() onReply;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
           leading: CircleAvatar(
-            backgroundImage: NetworkImage(comment.user.logo),
+            backgroundImage: NetworkImage(
+                comment.user.userId == ref.read(userProvider)!.userId
+                    ? ref.read(userProvider)!.logo
+                    : comment.user.logo),
           ),
           title: Text(
             '@${comment.user.username}',

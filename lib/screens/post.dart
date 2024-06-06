@@ -110,8 +110,6 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       await ref
           .read(commentsProvider(widget.post).notifier)
           .comment(_commentController.text.trim());
-    
-
     setState(() {
       _commentController.clear();
       _isCommentLoading = false;
