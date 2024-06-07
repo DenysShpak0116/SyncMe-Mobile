@@ -7,11 +7,12 @@ class Group {
     required this.groupImage,
     required this.groundBackgroundImage,
     required this.emotionalAnalysis,
-  });
+  }) : description = ' ';
 
   final int groupId;
   final String name;
   final String groupImage;
   final String groundBackgroundImage;
   final EmotionalAnalysis? emotionalAnalysis;
+  String description;
 }

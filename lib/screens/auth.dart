@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/user_provider.dart';
 import 'package:syncme/screens/tabs.dart';
-import 'package:syncme/screens/test.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -262,9 +261,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           validator: (value) {
             if (value == null ||
                 value.trim().isEmpty ||
-                value.lastIndexOf('@') != 0 ||
                 value.length < 4) {
-              return 'User name must start with \'@\' and be at least 4 characters.';
+              return 'User name must be at least 4 characters.';
             }
             return null;
           },

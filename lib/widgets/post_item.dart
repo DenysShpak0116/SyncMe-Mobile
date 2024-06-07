@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:syncme/models/author.dart';
+import 'package:syncme/models/group.dart';
 import 'package:syncme/models/post.dart';
 import 'package:intl/intl.dart';
+import 'package:syncme/providers/authors_provider.dart';
 import 'package:syncme/providers/likedposts_provider.dart';
+import 'package:syncme/screens/group.dart';
 
 final DateFormat formatter = DateFormat('d/M/y');
 
@@ -12,12 +16,15 @@ class PostItem extends ConsumerStatefulWidget {
     required this.onSelectPost,
     required this.post,
     required this.postImage,
+    required this.selectGroup,
     super.key,
   });
   final Post post;
   final Widget? postImage;
   final Future<bool?> Function() onSelectPost;
   final Future<bool?> Function() onSelectPostWithScrolling;
+  final void Function(BuildContext context, Group group, List<Author> authors)
+      selectGroup;
 
   @override
   ConsumerState<PostItem> createState() {
@@ -65,6 +72,15 @@ class _PostItemState extends ConsumerState<PostItem> {
               children: [
                 Expanded(
                   child: ListTile(
+                    onTap: () async {
+                      await ref
+                          .read(authorsProvider(widget.post.author.group)
+                              .notifier)
+                          .loadAuthors();
+                      List<Author> authors =
+                          ref.read(authorsProvider(widget.post.author.group));
+                      widget.selectGroup(context, widget.post.author.group, authors);
+                    },
                     leading: CircleAvatar(
                       backgroundImage:
                           NetworkImage(widget.post.author.authorImage),

@@ -13,18 +13,16 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-
-
   final List<String> avatarUrls = [
     'https://i.imgur.com/w6nyLDf.png',
     'https://static-00.iconduck.com/assets.00/reddit-icon-icon-1024x1024-7oj6whxq.png',
     'https://1000logos.net/wp-content/uploads/2017/02/Facebook-Logosu.png',
-    'https://via.placeholder.com/150/FFFF00',
-    'https://via.placeholder.com/150/FF00FF',
-    'https://via.placeholder.com/150/00FFFF',
-    'https://via.placeholder.com/150/000000',
-    'https://via.placeholder.com/150/FFFFFF',
-    'https://via.placeholder.com/150/888888',
+    'https://static.vecteezy.com/system/resources/previews/022/811/328/large_2x/cute-cat-kitty-animal-character-epitome-avatar-mascot-portrait-free-photo.jpeg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Anonymous_emblem.svg/1200px-Anonymous_emblem.svg.png',
+    'https://t4.ftcdn.net/jpg/05/66/63/19/360_F_566631993_wTzG2ryyNj6gbvdwfYEVxQNCDcwz0ba7.jpg',
+    'https://ysc.nure.ua/wp-content/uploads/2023/05/Logo_nure.png',
+    'https://st4.depositphotos.com/10839834/22313/v/450/depositphotos_223139856-stock-illustration-emblem-kharkiv-city-ukraine-vector.jpg',
+    'https://w7.pngwing.com/pngs/107/901/png-transparent-coat-of-arms-of-ukraine-brand-trident-line-text-logo-alex.png',
   ];
 
   void _openAvatarSelection(BuildContext context) {
@@ -93,7 +91,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           onTap: () => _openAvatarSelection(context),
           child: CircleAvatar(
             backgroundImage: NetworkImage(ref.watch(userProvider)!.logo),
-            radius: 40,
+            radius: 80,
           ),
         ),
       ),

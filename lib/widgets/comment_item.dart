@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/models/comment.dart';
 import 'package:intl/intl.dart';
-import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/user_provider.dart';
 
 final DateFormat formatterForComments = DateFormat('H:m d/M/y');

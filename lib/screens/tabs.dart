@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:syncme/models/author.dart';
+import 'package:syncme/models/group.dart';
 import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/user_provider.dart';
+import 'package:syncme/screens/auth.dart';
+import 'package:syncme/screens/group.dart';
 import 'package:syncme/screens/settings.dart';
 import 'package:syncme/widgets/tabs_drawer.dart';
 import 'package:syncme/models/post.dart';
@@ -29,6 +33,13 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
         ),
       );
     }
+    if (identifier == 'auth') {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (ctx) => const AuthScreen(),
+        ),
+      );
+    }
   }
 
   Future<bool?> _selectPost(BuildContext context, Post post) async {
@@ -49,6 +60,15 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
       ),
     );
     return isPostWasLiked;
+  }
+
+  void _selectGroup(BuildContext context, Group group, List<Author> authors) {
+    authors = authors.getRange(0, 3).toList();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (ctx) => GroupScreen(group: group, authors: authors)),
+    );
   }
 
   Future<bool?> _selectPostWithScrolling(
@@ -86,20 +106,22 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
       content = ListView.builder(
         itemCount: posts.length,
         itemBuilder: (ctx, index) => PostItem(
-            post: posts[index],
-            postImage: posts[index].imgContent == null
-                ? null
-                : FadeInImage(
-                    placeholder: MemoryImage(kTransparentImage),
-                    image: NetworkImage(posts[index].imgContent!),
-                    fit: BoxFit.cover,
-                  ),
-            onSelectPost: () {
-              return _selectPost(context, posts[index]);
-            },
-            onSelectPostWithScrolling: () {
-              return _selectPostWithScrolling(context, posts[index]);
-            }),
+          post: posts[index],
+          postImage: posts[index].imgContent == null
+              ? null
+              : FadeInImage(
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(posts[index].imgContent!),
+                  fit: BoxFit.cover,
+                ),
+          onSelectPost: () {
+            return _selectPost(context, posts[index]);
+          },
+          onSelectPostWithScrolling: () {
+            return _selectPostWithScrolling(context, posts[index]);
+          },
+          selectGroup: _selectGroup,
+        ),
       );
     }
 

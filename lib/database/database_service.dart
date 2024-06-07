@@ -46,8 +46,7 @@ class DatabaseService {
     }
     List<Post> loadedPosts = [];
     List<Author> loadedAuthors = [];
-    var postsResults =
-        await _connection!.query('SELECT * FROM syncme.post LIMIT 10');
+    var postsResults = await _connection!.query('SELECT * FROM syncme.post');
 
     for (var postRow in postsResults) {
       if (loadedAuthors
@@ -79,6 +78,7 @@ class DatabaseService {
           groundBackgroundImage: groupRow[3],
           emotionalAnalysis: eaGroup,
         );
+        group.description = groupRow[5];
 
         EmotionalAnalysis? eaAuthor;
         if (authorRow[6] != null) {
@@ -389,5 +389,41 @@ class DatabaseService {
           logo,
           user.userId,
         ]);
+  }
+
+  Future<List<Author>> loadAuthors(Group group) async {
+    if (_connection == null) {
+      await connect();
+    }
+
+    List<Author> loadedAuthors = [];
+    var authorsResults = await _connection!.query(
+      'SELECT * FROM syncme.author where syncme.author.GroupId = ?',
+      [group.groupId],
+    );
+
+    for (var authorRow in authorsResults) {
+      EmotionalAnalysis? eaAuthor;
+      var eaResult = await _connection!.query(
+          'select * from syncme.emotionalanalysis where syncme.emotionalanalysis.EmotionalAnalysisId = ${authorRow[6]}');
+      ResultRow eaRow = eaResult.toList()[0];
+      eaAuthor = EmotionalAnalysis(
+          emotionalAnalysisId: eaRow[0],
+          emotionalState: eaRow[1],
+          emotionalIcon: eaRow[2]);
+
+      Author author = Author(
+        authorId: authorRow[0],
+        name: authorRow[1],
+        socialMedia: authorRow[2],
+        authorImage: authorRow[3],
+        authorBackgroundImage: authorRow[4],
+        group: group,
+        emotionalAnalysis: eaAuthor,
+        username: authorRow[7],
+      );
+      loadedAuthors.add(author);
+    }
+    return loadedAuthors;
   }
 }

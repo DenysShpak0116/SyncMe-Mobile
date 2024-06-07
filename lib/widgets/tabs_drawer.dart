@@ -87,6 +87,23 @@ class TabsDrawer extends StatelessWidget {
               onSelectScreen('settings');
             },
           ),
+          ListTile(
+            leading: const Icon(
+              Icons.logout,
+              size: 26,
+              color: Color(0xFFB28ECC),
+            ),
+            title: Text(
+              'Logout',
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    color: const Color(0xFFB28ECC),
+                    fontSize: 24,
+                  ),
+            ),
+            onTap: () {
+              onSelectScreen('auth');
+            },
+          ),
         ],
       ),
     );
