@@ -63,7 +63,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
   }
 
   void _selectGroup(BuildContext context, Group group, List<Author> authors) {
-    authors = authors.getRange(0, 3).toList();
+    authors = authors.getRange(0, 4).toList();
     Navigator.push(
       context,
       MaterialPageRoute(

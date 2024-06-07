@@ -67,7 +67,7 @@ class _GroupScreenState extends ConsumerState<GroupScreen> {
   }
 
   void _selectGroup(BuildContext context, Group group, List<Author> authors) {
-    authors = authors.getRange(0, 2).toList();
+    authors = authors.getRange(0, 4).toList();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -200,7 +200,9 @@ class _GroupScreenState extends ConsumerState<GroupScreen> {
                                     width: 6,
                                   ),
                                   Text(
-                                    author.username,
+                                    author.name.length > 10
+                                        ? '${author.name.substring(0, 10)}...'
+                                        : author.name,
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium!
