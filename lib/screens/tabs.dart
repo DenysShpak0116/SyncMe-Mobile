@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/user_provider.dart';
 import 'package:syncme/screens/settings.dart';
-import 'package:syncme/widgets/feed.dart';
 import 'package:syncme/widgets/tabs_drawer.dart';
+import 'package:syncme/models/post.dart';
+import 'package:syncme/providers/posts_provider.dart';
+import 'package:syncme/screens/post.dart';
+import 'package:syncme/widgets/post_item.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class TabsScreen extends ConsumerStatefulWidget {
   const TabsScreen({super.key});
@@ -27,9 +31,77 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     }
   }
 
+  Future<bool?> _selectPost(BuildContext context, Post post) async {
+    bool? isPostWasLiked = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => PostScreen(
+          post: post,
+          scrollingToComments: false,
+          postImage: post.imgContent == null
+              ? null
+              : FadeInImage(
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(post.imgContent!),
+                  fit: BoxFit.cover,
+                ),
+        ),
+      ),
+    );
+    return isPostWasLiked;
+  }
+
+  Future<bool?> _selectPostWithScrolling(
+      BuildContext context, Post post) async {
+    bool? isPostWasLiked = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => PostScreen(
+          post: post,
+          scrollingToComments: true,
+          postImage: post.imgContent == null
+              ? null
+              : FadeInImage(
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(post.imgContent!),
+                  fit: BoxFit.cover,
+                ),
+        ),
+      ),
+    );
+    return isPostWasLiked;
+  }
+
   @override
   Widget build(BuildContext context) {
     User user = ref.watch(userProvider)!;
+
+    final posts = ref.watch(postsProvider);
+
+    Widget content = const Center(
+      child: Text('No posts from your groups yet.'),
+    );
+
+    if (posts.isNotEmpty) {
+      content = ListView.builder(
+        itemCount: posts.length,
+        itemBuilder: (ctx, index) => PostItem(
+            post: posts[index],
+            postImage: posts[index].imgContent == null
+                ? null
+                : FadeInImage(
+                    placeholder: MemoryImage(kTransparentImage),
+                    image: NetworkImage(posts[index].imgContent!),
+                    fit: BoxFit.cover,
+                  ),
+            onSelectPost: () {
+              return _selectPost(context, posts[index]);
+            },
+            onSelectPostWithScrolling: () {
+              return _selectPostWithScrolling(context, posts[index]);
+            }),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +116,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
           color: Color(0xFF794D98),
         ),
       ),
-      body: const Feed(),
+      body: content,
       drawer: TabsDrawer(
         onSelectScreen: _setScreen,
         user: user,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/user_provider.dart';
 import 'package:syncme/screens/tabs.dart';
+import 'package:syncme/screens/test.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});

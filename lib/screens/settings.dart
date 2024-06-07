@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/user_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {

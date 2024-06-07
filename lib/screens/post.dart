@@ -5,7 +5,9 @@ import 'package:syncme/models/post.dart';
 import 'package:syncme/providers/comments_provider.dart';
 import 'package:syncme/providers/likedposts_provider.dart';
 import 'package:syncme/widgets/comment_item.dart';
-import 'package:syncme/widgets/post_item.dart';
+import 'package:intl/intl.dart';
+
+final DateFormat formatter = DateFormat('d/M/y');
 
 class PostScreen extends ConsumerStatefulWidget {
   const PostScreen({
@@ -36,6 +38,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _commentController.dispose();
     super.dispose();
   }
 
@@ -80,23 +83,18 @@ class _PostScreenState extends ConsumerState<PostScreen> {
   }
 
   void _like() {
-    if (!_isLiked) {
-      setState(
-        () {
-          _isLiked = !_isLiked;
+    setState(
+      () {
+        _isLiked = !_isLiked;
+        if (_isLiked) {
           widget.post.countOfLikes++;
-        },
-      );
-      ref.read(likedPostsProvider.notifier).likePost(widget.post);
-    } else {
-      setState(
-        () {
-          _isLiked = !_isLiked;
+          ref.read(likedPostsProvider.notifier).likePost(widget.post);
+        } else {
           widget.post.countOfLikes--;
-        },
-      );
-      ref.read(likedPostsProvider.notifier).removeLikeFromPost(widget.post);
-    }
+          ref.read(likedPostsProvider.notifier).removeLikeFromPost(widget.post);
+        }
+      },
+    );
   }
 
   void _comment() async {
@@ -106,10 +104,10 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     setState(() {
       _isCommentLoading = true;
     });
-    
-      await ref
-          .read(commentsProvider(widget.post).notifier)
-          .comment(_commentController.text.trim());
+
+    await ref
+        .read(commentsProvider(widget.post).notifier)
+        .comment(_commentController.text.trim());
     setState(() {
       _commentController.clear();
       _isCommentLoading = false;
@@ -241,45 +239,41 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(right: 16.0),
-                    child: Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            '75%',
-                            style: TextStyle(
-                              color: Color(0xFFB28ECC),
-                            ),
-                          ),
-                          const Icon(
-                            size: 20,
-                            Icons.emoji_emotions,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${widget.post.emotionalAnalysis?.emotionalState ?? 'N/A'}%',
+                          style: const TextStyle(
                             color: Color(0xFFB28ECC),
                           ),
-                          const SizedBox(
-                            width: 4,
+                        ),
+                        const Icon(
+                          size: 20,
+                          Icons.emoji_emotions,
+                          color: Color(0xFFB28ECC),
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        Text(
+                          formatter.format(widget.post.date),
+                          style: const TextStyle(
+                            color: Color(0xFFB28ECC),
                           ),
-                          Text(
-                            formatter.format(
-                              widget.post.date,
-                            ),
-                            style: const TextStyle(
-                              color: Color(0xFFB28ECC),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          Image.asset(
-                            'assets/images/x.png',
-                            width: 18.0,
-                            height: 18.0,
-                            color: const Color(0xFFB28ECC),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(
+                          width: 4,
+                        ),
+                        Image.asset(
+                          'assets/images/x.png',
+                          width: 18.0,
+                          height: 18.0,
+                          color: const Color(0xFFB28ECC),
+                        ),
+                      ],
                     ),
-                  )
+                  ),
                 ],
               ),
               Padding(
@@ -318,11 +312,12 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                        onPressed: _like,
-                        icon: const Icon(Icons.add),
-                        color: _isLiked
-                            ? const Color.fromARGB(255, 194, 33, 119)
-                            : const Color(0xFFD3B3E9)),
+                      onPressed: _like,
+                      icon: const Icon(Icons.add),
+                      color: _isLiked
+                          ? const Color.fromARGB(255, 194, 33, 119)
+                          : const Color(0xFFD3B3E9),
+                    ),
                     Text(
                       widget.post.countOfLikes.toString(),
                       style: const TextStyle(
@@ -331,12 +326,11 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                       ),
                     ),
                     const Spacer(),
-                    const Spacer(),
                     IconButton(
                       onPressed: () {},
                       icon: const Icon(Icons.repeat),
                       color: const Color(0xFFD3B3E9),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -394,7 +388,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
               commentsContent,
               const SizedBox(
                 height: 4,
-              )
+              ),
             ],
           ),
         ),

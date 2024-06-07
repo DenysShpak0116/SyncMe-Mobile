@@ -6,6 +6,7 @@ import 'package:syncme/models/group.dart';
 import 'package:syncme/models/post.dart';
 import 'package:syncme/models/user.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseService {
   MySqlConnection? _connection;
@@ -17,15 +18,20 @@ class DatabaseService {
   final String password = dotenv.env['DB_PASSWORD']!;
 
   Future<void> connect() async {
-    _connection = await MySqlConnection.connect(
-      ConnectionSettings(
-        host: host,
-        port: port,
-        user: username,
-        db: database,
-        password: password,
-      ),
-    );
+    try {
+      _connection = await MySqlConnection.connect(
+        ConnectionSettings(
+          host: host,
+          port: port,
+          user: username,
+          db: database,
+          password: password,
+        ),
+      );
+      debugPrint('Database connected');
+    } catch (e) {
+      debugPrint('Error connecting to database: $e');
+    }
   }
 
   MySqlConnection? get connection => _connection;
@@ -40,7 +46,8 @@ class DatabaseService {
     }
     List<Post> loadedPosts = [];
     List<Author> loadedAuthors = [];
-    var postsResults = await _connection!.query('select * from syncme.post');
+    var postsResults =
+        await _connection!.query('SELECT * FROM syncme.post LIMIT 10');
 
     for (var postRow in postsResults) {
       if (loadedAuthors
@@ -282,6 +289,7 @@ class DatabaseService {
         country: userRow[7],
         role: userRow[8],
       );
+      user.logo = userRow[9];
 
       Comment comment = Comment(
         commentId: commentRow[0],
@@ -336,8 +344,7 @@ class DatabaseService {
     if (result.toList().isEmpty) {
       return null;
     }
-
-    return User(
+    User user = User(
       userId: result.first[0],
       username: result.first[1],
       password: result.first[2],
@@ -348,6 +355,8 @@ class DatabaseService {
       country: result.first[7],
       role: result.first[8],
     );
+    user.logo = result.first[9];
+    return user;
   }
 
   Future<int> insertNewComment(Comment comment) async {

@@ -30,20 +30,16 @@ class _PostItemState extends ConsumerState<PostItem> {
 
   void _like() {
     if (!_isLiked) {
-      setState(
-        () {
-          _isLiked = !_isLiked;
-          widget.post.countOfLikes++;
-        },
-      );
+      setState(() {
+        _isLiked = !_isLiked;
+        widget.post.countOfLikes++;
+      });
       ref.read(likedPostsProvider.notifier).likePost(widget.post);
     } else {
-      setState(
-        () {
-          _isLiked = !_isLiked;
-          widget.post.countOfLikes--;
-        },
-      );
+      setState(() {
+        _isLiked = !_isLiked;
+        widget.post.countOfLikes--;
+      });
       ref.read(likedPostsProvider.notifier).removeLikeFromPost(widget.post);
     }
   }
@@ -87,60 +83,41 @@ class _PostItemState extends ConsumerState<PostItem> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
-                  child: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${widget.post.emotionalAnalysis!.emotionalState}%',
-                          style: const TextStyle(
-                            color: Color(0xFFB28ECC),
-                          ),
-                        ),
-                        const Icon(
-                          size: 20,
-                          Icons.emoji_emotions,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${widget.post.emotionalAnalysis!.emotionalState}%',
+                        style: const TextStyle(
                           color: Color(0xFFB28ECC),
                         ),
-                        const SizedBox(
-                          width: 4,
+                      ),
+                      const Icon(
+                        size: 20,
+                        Icons.emoji_emotions,
+                        color: Color(0xFFB28ECC),
+                      ),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      Text(
+                        formatter.format(widget.post.date),
+                        style: const TextStyle(
+                          color: Color(0xFFB28ECC),
                         ),
-                        Text(
-                          formatter.format(
-                            widget.post.date,
-                          ),
-                          style: const TextStyle(
-                            color: Color(0xFFB28ECC),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 4,
-                        ),
-
-                        Image.asset(
-                          'assets/images/x.png',
-                          width: 16.0,
-                          height: 16.0,
-                          color: const Color(0xFFB28ECC),
-                        ),
-                        // const Icon(
-                        //   IconData(
-                        //     0xf0586,
-                        //     fontFamily: 'MaterialIcons',
-                        //   ),
-                        //   color: Color(0xff744E8E),
-                        // ),
-                        // IconButton(
-                        //   icon: const Icon(
-                        //     Icons.more_vert,
-                        //     color: Color(0xff744E8E),
-                        //   ),
-                        //   onPressed: () {},
-                        // ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(
+                        width: 4,
+                      ),
+                      Image.asset(
+                        'assets/images/x.png',
+                        width: 16.0,
+                        height: 16.0,
+                        color: const Color(0xFFB28ECC),
+                      ),
+                    ],
                   ),
-                )
+                ),
               ],
             ),
             Padding(
@@ -154,37 +131,35 @@ class _PostItemState extends ConsumerState<PostItem> {
                     });
                   }
                 },
-                child: Expanded(
-                  child: Column(
-                    children: [
-                      Text(
-                        widget.post.textContent,
-                        maxLines: 3,
-                        overflow: TextOverflow.visible,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFD3B3E9),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.post.textContent,
+                      maxLines: 3,
+                      overflow: TextOverflow.visible,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFFD3B3E9),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 6,
+                    ),
+                    if (widget.post.imgContent != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20.0),
+                          child: widget.postImage,
                         ),
                       ),
+                    if (widget.post.imgContent != null)
                       const SizedBox(
-                        height: 6,
+                        height: 5,
                       ),
-                      if (widget.post.imgContent != null)
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20.0),
-                            child: widget.postImage,
-                          ),
-                        ),
-                      if (widget.post.imgContent != null)
-                        const SizedBox(
-                          height: 5,
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -193,11 +168,12 @@ class _PostItemState extends ConsumerState<PostItem> {
               child: Row(
                 children: [
                   IconButton(
-                      onPressed: _like,
-                      icon: const Icon(Icons.add),
-                      color: _isLiked
-                          ? const Color.fromARGB(255, 194, 33, 119)
-                          : const Color(0xFFD3B3E9)),
+                    onPressed: _like,
+                    icon: const Icon(Icons.add),
+                    color: _isLiked
+                        ? const Color.fromARGB(255, 194, 33, 119)
+                        : const Color(0xFFD3B3E9),
+                  ),
                   Text(
                     widget.post.countOfLikes.toString(),
                     style: const TextStyle(
@@ -227,13 +203,13 @@ class _PostItemState extends ConsumerState<PostItem> {
                     onPressed: () {},
                     icon: const Icon(Icons.repeat),
                     color: const Color(0xFFD3B3E9),
-                  )
+                  ),
                 ],
               ),
             ),
             const SizedBox(
               height: 4,
-            )
+            ),
           ],
         ),
       ),

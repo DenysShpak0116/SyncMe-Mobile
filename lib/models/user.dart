@@ -21,7 +21,8 @@ class User {
     required this.sex,
     required this.country,
     required this.role,
-  });
+  }):logo =
+        'https://yt3.googleusercontent.com/ytc/AIdro_mT2QBvRmDHkeee7q4LPluCswzD7VB0yWvDwzjm8XHCsA=s900-c-k-c0x00ffffff-no-rj';
   int userId;
   final String username;
   String password;
@@ -31,6 +32,5 @@ class User {
   final String sex;
   final String country;
   final String role;
-  String logo =
-      'https://yt3.googleusercontent.com/ytc/AIdro_mT2QBvRmDHkeee7q4LPluCswzD7VB0yWvDwzjm8XHCsA=s900-c-k-c0x00ffffff-no-rj';
+  String logo;
 }

@@ -4,6 +4,7 @@ import 'package:syncme/models/user.dart';
 import 'package:syncme/providers/likedposts_provider.dart';
 import 'package:syncme/providers/posts_provider.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
+import 'package:flutter/foundation.dart';
 
 class UserNotifier extends StateNotifier<User?> {
   UserNotifier(this.ref) : super(null);
@@ -11,44 +12,48 @@ class UserNotifier extends StateNotifier<User?> {
   final Ref ref;
 
   Future<bool> createNewUser(User user) async {
-    user.password = await hashPassword(user.password);
+    try {
+      user.password = await hashPassword(user.password);
 
-    final userId = await databaseService.insertNewUser(user);
+      final userId = await databaseService.insertNewUser(user);
 
-    if (userId == -1) {
+      if (userId == -1) {
+        return false;
+      }
+
+      user.userId = userId!;
+
+      state = user;
+
+      return true;
+    } catch (e) {
+      debugPrint('Error creating new user: $e');
       return false;
     }
-
-    user.userId = userId!;
-
-    state = user;
-
-    return true;
   }
 
   Future<bool> setUser(String email, String password) async {
-    final User? user = await databaseService.getUserByEmail(email);
+    try {
+      final User? user = await databaseService.getUserByEmail(email);
 
-    if (user == null) {
-      return false;
-    }
+      if (user == null) {
+        return false;
+      }
 
-    if (state != null && user.password == state!.password) {
+      if (!await checkPassword(password, user.password)) {
+        return false;
+      }
+
+      state = user;
+
       await ref.read(postsProvider.notifier).loadPosts();
       await ref.read(likedPostsProvider.notifier).loadLikedPosts();
-      return true;
-    }
 
-    if (!await checkPassword(password, user.password)) {
+      return true;
+    } catch (e) {
+      debugPrint('Error setting user: $e');
       return false;
     }
-
-    state = user;
-
-    await ref.read(postsProvider.notifier).loadPosts();
-    await ref.read(likedPostsProvider.notifier).loadLikedPosts();
-
-    return true;
   }
 
   Future<String> hashPassword(String password) async {
@@ -68,7 +73,7 @@ class UserNotifier extends StateNotifier<User?> {
 
   Future<void> setLogo(String logo) async {
     state!.logo = logo;
-    databaseService.updateLogo(state!,logo);
+    databaseService.updateLogo(state!, logo);
   }
 }
 
